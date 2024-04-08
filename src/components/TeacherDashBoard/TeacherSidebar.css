@@ -1,0 +1,87 @@
+.teacher-sidebar {
+  width: 250px;
+  height: 500%;
+  background-color: #0bc452;
+  color: #fff;
+  transition: all 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding-top: 60px;
+}
+.welcome-message {
+  padding: 20px;
+  text-align: center;
+  background-color: #07923d;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.collapsed .welcome-message {
+  opacity: 0;
+  pointer-events: none;
+}
+.collapsed {
+  width: 80px;
+  padding-top: 20px;
+}
+.collapsed ul {
+  display: none;
+}
+
+.collapsed ul.visible {
+  display: block;
+}
+
+.toggle-button {
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 10px 20px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.sidebar-content ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 40px;
+}
+
+.sidebar-content li {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.sidebar-content a,
+.logout-btn {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar-content a:hover {
+  background-color: #07923d;
+  cursor: pointer;
+}
+
+.active {
+  background-color: #07923d;
+}
+
+.icon {
+  margin-right: 10px;
+}
+@media (min-width: 768px) {
+  .toggle-button {
+    display: none;
+  }
+}

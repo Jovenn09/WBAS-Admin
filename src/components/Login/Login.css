@@ -1,0 +1,127 @@
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -40px;
+  overflow: hidden;
+}
+.university-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+}
+.headert-logo {
+  max-width: 600px;
+  margin-left: 1px;
+  margin-bottom: 30px;
+}
+.university-logo {
+  max-width: 120px;
+  margin-left: 12px;
+  margin-bottom: 50px;
+}
+.phinma-logo {
+  max-width: 120px;
+  margin-right: 5px;
+  margin-bottom: 50px;
+}
+.university-heading {
+  font-size: 25px;
+  text-align: center;
+  margin-right: 10px;
+}
+.card-container {
+  display: flex;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 30px;
+  overflow: hidden;
+}
+.login-image {
+  max-width: 500px;
+  border-radius: 50px;
+  max-height: 500px;
+  padding: 20px;
+  overflow: hidden;
+}
+.login-image img {
+  width: 100%;
+  height: auto;
+}
+
+.login-form button {
+  width: 100%;
+}
+.login-form {
+  background-color: #fff;
+  padding: 2px;
+  padding-right: 10px;
+  border-radius: 30px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.login-form h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+.signup-link {
+  color: #0056b3;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-group {
+  margin-bottom: 8px;
+  text-align: left;
+  width: 100%;
+  padding: 11px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+select {
+  appearance: none;
+}
+
+button[type="submit"] {
+  background-color: #0bc452;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #07923d;
+}
+.forgot-password-link {
+  color: #0056b3;
+}

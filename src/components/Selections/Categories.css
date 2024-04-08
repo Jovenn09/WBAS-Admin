@@ -1,0 +1,9 @@
+.buttons {
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.buttons button {
+  margin-bottom: 10px;
+}

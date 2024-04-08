@@ -1,0 +1,51 @@
+.edit-teacher-profile-container {
+  max-width: 920px;
+  margin: 20px auto;
+  padding: 10px;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid #e9e9e9;
+  border-radius: 10px;
+  margin-left: 260px;
+  transition: margin-left 0.3s ease;
+}
+
+.edit-teacher-profile-container label {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 20px;
+
+}
+
+.edit-teacher-profile-container input,
+.edit-teacher-profile-container textarea,
+.edit-teacher-profile-container select {
+  width: 80%;
+  padding: 8px; 
+  margin-bottom: 10px; 
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px; 
+}
+
+
+.edit-teacher-profile-container button {
+  background-color: #0bc452;
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+
+@media (max-width: 768px) {
+  .edit-teacher-profile-container {
+    margin-left: 100px;
+  }
+
+  .collapsed .edit-teacher-profile-container {
+    margin-left: 0;
+  }
+}

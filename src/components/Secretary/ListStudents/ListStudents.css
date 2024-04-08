@@ -1,0 +1,64 @@
+/* ListStudents.css */
+
+.list-students-container {
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  border: 1px solid #e9e9e9;
+  margin-left: 270px;
+  transition: margin-left 0.3s ease;
+  }
+  
+  
+  .collapsed .list-students-container{
+    margin-left: 80px; 
+  }
+  h2 {
+    text-align: center;
+  }
+  
+  .table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; 
+  }
+  .table th,
+  .table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .table th {
+    background-color: #f2f2f2;
+  }
+  
+  .table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  @media (max-width: 768px) {
+    .list-students-container {
+      margin-left: 100px; 
+    }
+    .collapsed .list-students-container {
+        margin-left: 0; 
+      }
+    
+      .attendance-content {
+        padding: 10px;
+      }
+    
+  }  
+
+
+  .not-found {
+    text-align: center;
+    vertical-align: middle;
+  }

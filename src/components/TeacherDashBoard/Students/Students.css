@@ -1,0 +1,68 @@
+.student-container {
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  border: 1px solid #e9e9e9;
+  margin-left: 270px;
+  transition: margin-left 0.3s ease;
+  }
+  
+  .collapsed .student-container {
+    margin-left: 80px; 
+  }
+  .edit-icon{
+    background-color: #007bff; 
+    color: white; 
+    border: none;
+    padding: 5px 10px;
+    margin-right: 0px;
+    cursor: pointer;
+    align-items: center;
+  }
+  .edit-icon:hover{
+    background-color: #0367d3
+  }
+  .delete-icon {
+    background-color: #ff0000; 
+    color: white; 
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    align-items: center;
+    margin-left: 5px;
+  }
+  .delete-icon:hover{
+    background-color: #b60101;
+  }
+.filter-search-container input[type="text"],
+.filter-search-container select {
+  width: 150px; 
+  padding: 5px;
+  font-size: 14px; 
+}
+.filter-search-container select{
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+  .add-student-button{
+    padding: 5px 10px;
+    margin-left: 10px;
+  }
+  .class-container,
+  .blocks-container{
+    margin-left: 5px;
+  }
+  @media (max-width: 768px) {
+    .student-container {
+      margin-left: 100px; 
+    }
+    .collapsed .student-container {
+        margin-left: 0; 
+      }
+    
+      .student-content {
+        padding: 10px;
+      }
+    
+  }  

@@ -1,0 +1,106 @@
+.attendance-container {
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  border: 1px solid #e9e9e9;
+  margin-left: 270px;
+  transition: margin-left 0.3s ease;
+}
+
+.collapsed .attendance-container {
+  margin-left: 80px;
+}
+.edit-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+.delete-button {
+  background-color: #ff0015;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+.edit-button:hover {
+  background-color: #0056b3;
+}
+.delete-button:hover {
+  background-color: #8f031a;
+}
+.submit-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.submit-button:disabled,
+.submit-button:disabled:hover {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+.search-input {
+  margin-left: 10px;
+}
+.date-filter {
+  margin-left: 10px;
+}
+.date {
+  margin-left: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid rgb(211, 211, 211);
+}
+.attendance-options {
+  display: flex;
+  gap: 10px;
+}
+.generate-qrcode-button {
+  background-color: rgb(150, 150, 5);
+  padding: 5px 10px;
+  margin-left: 10px;
+}
+.generate-qrcode-button:hover {
+  background-color: rgb(92, 92, 2);
+}
+
+.show-student:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+select:disabled {
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .attendance-container {
+    margin-left: 100px;
+  }
+  .collapsed .attendance-container {
+    margin-left: 0;
+  }
+
+  .attendance-content {
+    padding: 10px;
+  }
+}
+
+.not-found {
+  text-align: center;
+  vertical-align: middle;
+}

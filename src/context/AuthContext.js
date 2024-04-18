@@ -16,7 +16,7 @@ export function AuthContextProvider({ children }) {
       const { data, error } = await supabase.auth.getUser();
       if (error) console.log(error.message);
 
-      if (data.user.user_metadata?.access === "student") {
+      if (data.user?.user_metadata?.access === "student") {
         let { data: students } = await supabase
           .from("students")
           .select("student_id")

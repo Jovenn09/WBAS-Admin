@@ -4,8 +4,10 @@ import { Pagination } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import supabase from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
-// import { FaEdit, FaTrash } from "react-icons/fa";
-// import AddStudentModal from "./AddStudentModal";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import AddStudentModal from "./AddStudentModal";
+import Swal from "sweetalert2";
+import EditStudentModal from "./EditStudentModal";
 
 const Students = () => {
   const { user } = useContext(AuthContext);
@@ -17,19 +19,14 @@ const Students = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [blockFilter, setBlockFilter] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("");
-  // const [showModal, setShowModal] = useState(false);
-  // const [newStudent, setNewStudent] = useState({
-  //   id: "",
-  //   name: "",
-  //   classes: [],
-  //   yearLevel: "",
-  //   blocks: "",
-  //   contactNo: "",
-  //   address: "",
-  // });
+  const [showModal, setShowModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalStudents, setTotalStudents] = useState(0);
+
+  const [currentStudentNum, setCurrentStudentNum] = useState("");
+  const [currentStudentName, setCurrentStudentName] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const itemsPerPage = 20;
 
@@ -96,65 +93,55 @@ const Students = () => {
     setCurrentPage(pageNumber);
   };
 
-  // const handleEditStudent = (studentId) => {
-  //   console.log(`Editing student with ID: ${studentId}`);
-  // };
+  const handleEditStudent = (studentId, studentName) => {
+    setCurrentStudentNum(studentId);
+    setCurrentStudentName(studentName);
+    setShowEditModal(true);
+  };
 
-  // const handleDeleteStudent = (studentId) => {
-  //   console.log(studentId);
+  const handleDeleteStudent = async (studentId) => {
+    console.log(studentId);
 
-  //   Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "You won't be able to revert this!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonColor: "#d33",
-  //     confirmButtonText: "Yes, delete it!",
-  //   }).then((result) => {
-  //     if (result.isConfirmed) {
-  //       axios
-  //         .post("http://localhost:8081/remove-student", { studentId })
-  //         .then((response) => {
-  //           if (response.data.success) {
-  //             Swal.fire(
-  //               "Deleted!",
-  //               "Student has been removed from the list",
-  //               "success"
-  //             ).then(() => {
-  //               window.location.reload();
-  //             });
-  //           } else {
-  //             Swal.fire("Error", "Failed to delete student", "error");
-  //           }
-  //         })
-  //         .catch((error) => {
-  //           Swal.fire("Error", "Failed to delete student", "error");
-  //         });
-  //     }
-  //   });
-  // };
+    const { isConfirmed } = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  // const handleAddStudent = () => {
-  //   setShowModal(true);
-  // };
+    if (!isConfirmed) return;
 
-  // const handleModalSave = () => {
-  //   console.log("Saving new student:", newStudent);
-  //   setShowModal(false);
-  // };
+    try {
+      const { error } = await supabase
+        .from("student_record")
+        .delete()
+        .eq("id", studentId)
+        .eq("subject", subjectFilter)
+        .eq("section", blockFilter);
 
-  // const handleModalClose = () => {
-  //   setShowModal(false);
-  // };
+      if (error) throw new Error(error.message);
 
-  // const handleModalChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setNewStudent((prevStudent) => ({
-  //     ...prevStudent,
-  //     [name]: value,
-  //   }));
-  // };
+      Swal.fire(
+        "Deleted!",
+        "Student has been removed from the list",
+        "success"
+      );
+      getStudentsBySection();
+    } catch (error) {
+      Swal.fire("Error", "Failed to delete student", "error");
+    }
+  };
+
+  const handleAddStudent = () => {
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+  };
 
   async function getStudentsBySection() {
     if (blockFilter) {
@@ -162,11 +149,11 @@ const Students = () => {
       const end = currentPage * itemsPerPage - 1;
 
       const { data, error, count } = await supabase
-        .from("students")
+        .from("student_record")
         .select("*", { count: "exact" })
         .order("name", { ascending: true })
-        .contains("sections", [blockFilter])
-        .contains("subjects", [subjectFilter])
+        .eq("section", blockFilter)
+        .eq("subject", subjectFilter)
         .ilike("name", `%${searchTerm}%`)
         .range(start, end);
 
@@ -231,9 +218,13 @@ const Students = () => {
           </select>
         </label>
 
-        {/* <button className="add-student-button" onClick={handleAddStudent}>
+        <button
+          disabled={!blockFilter}
+          className="add-student-button"
+          onClick={handleAddStudent}
+        >
           Add Student
-        </button> */}
+        </button>
       </div>
 
       <table className="student-table">
@@ -241,33 +232,29 @@ const Students = () => {
           <tr>
             <th>Student ID</th>
             <th>Student Name</th>
-            <th>Course</th>
-            <th>Year Level</th>
-            {/* <th>Actions</th> */}
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {students.length > 0 ? (
             students.map((student) => (
-              <tr key={student.uuid}>
-                <td>{student.student_id}</td>
+              <tr key={student.id}>
+                <td>{student.id}</td>
                 <td>{student.name}</td>
-                <td>{student.course}</td>
-                <td>{student.year_level}</td>
-                {/* <td>
+                <td>
                   <button
                     className="edit-icon"
-                    onClick={() => handleEditStudent(student.uuid)}
+                    onClick={() => handleEditStudent(student.id, student.name)}
                   >
                     <FaEdit />
                   </button>
                   <button
                     className="delete-icon"
-                    onClick={() => handleDeleteStudent(student.uuid)}
+                    onClick={() => handleDeleteStudent(student.id)}
                   >
                     <FaTrash />
                   </button>
-                </td> */}
+                </td>
               </tr>
             ))
           ) : (
@@ -297,13 +284,25 @@ const Students = () => {
           disabled={currentPage === Math.ceil(totalStudents / itemsPerPage)}
         />
       </Pagination>
-      {/* <AddStudentModal
+      <AddStudentModal
         show={showModal}
         onClose={handleModalClose}
-        onSave={handleModalSave}
-        onChange={handleModalChange}
-        newStudent={newStudent}
-      /> */}
+        section={blockFilter}
+        subject={subjectFilter}
+        getStudentsBySection={getStudentsBySection}
+      />
+      <EditStudentModal
+        show={showEditModal}
+        section={blockFilter}
+        subject={subjectFilter}
+        getStudentsBySection={getStudentsBySection}
+        currentStudentNum={currentStudentNum}
+        setCurrentStudentNum={setCurrentStudentNum}
+        currentStudentName={currentStudentName}
+        setCurrentStudentName={setCurrentStudentName}
+        showEditModal={showEditModal}
+        setShowEditModal={setShowEditModal}
+      />
     </div>
   );
 };

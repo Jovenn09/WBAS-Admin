@@ -4,10 +4,6 @@ import Swal from "sweetalert2";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import randomstring from "randomstring";
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
-import Select from "react-select";
-import makeAnimated from "react-select/animated";
-
-const animatedComponents = makeAnimated();
 
 const iconStyle = {
   position: "absolute",
@@ -31,9 +27,6 @@ const AddStudentModal = ({ show, closeModal }) => {
   const [studentId, setStudentId] = useState("");
   const [showPassword, setShowPassword] = useState("");
 
-  const [sectionOption, setSectionOption] = useState([]);
-  const [subjectOption, setSubjectOption] = useState([]);
-
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [section, setSection] = useState([]);
 
@@ -53,16 +46,11 @@ const AddStudentModal = ({ show, closeModal }) => {
       return alert("Please fill all required fields");
     }
 
-    const selectedSection = section.map((data) => data.value);
-    const subjects = selectedSubjects.map((data) => data.value);
-
     const studentData = {
       name: name,
       email: email,
       course: course,
       year_level: yearLevel,
-      sections: selectedSection,
-      subjects: subjects,
       address: address,
       contact_number: contactNumber,
       password: password,
@@ -132,19 +120,6 @@ const AddStudentModal = ({ show, closeModal }) => {
 
       if (error) return console.error(error);
       if (error) return console.error(subjectError);
-
-      const subjectOptions = subjects.map((data) => ({
-        value: data.subject_code,
-        label: `${data.subject_code} - ${data.subject_description}`,
-      }));
-
-      const sectionOptions = sections.map((data) => ({
-        value: data.section_code,
-        label: data.section_code,
-      }));
-
-      setSectionOption(sectionOptions);
-      setSubjectOption(subjectOptions);
     };
     getSection();
   }, [show, closeModal]);
@@ -162,10 +137,6 @@ const AddStudentModal = ({ show, closeModal }) => {
     setSelectedSubjects([]);
   }, [closeModal]);
 
-  // useEffect(() => {
-  //   console.log(admissionStatus);
-  // }, [admissionStatus]);
-
   return (
     <Modal show={show} onHide={closeModal}>
       <Modal.Header closeButton>
@@ -174,10 +145,10 @@ const AddStudentModal = ({ show, closeModal }) => {
       <Modal.Body>
         <Form>
           <Form.Group controlId="formStudentId">
-            <Form.Label>Student Id</Form.Label>
+            <Form.Label>Student Number</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter StudentId"
+              placeholder="Enter Student Number"
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
             />
@@ -231,26 +202,6 @@ const AddStudentModal = ({ show, closeModal }) => {
               <option value="regular">Regular</option>
               <option value="irregular">Irregular</option>
             </Form.Select>
-          </Form.Group>
-          <Form.Group controlId="formSubjects">
-            <Form.Label>Section</Form.Label>
-            <Select
-              closeMenuOnSelect={false}
-              components={animatedComponents}
-              isMulti
-              options={sectionOption}
-              onChange={(value) => setSection(value)}
-            />
-          </Form.Group>
-          <Form.Group controlId="formSubjects">
-            <Form.Label>Subjects</Form.Label>
-            <Select
-              closeMenuOnSelect={false}
-              components={animatedComponents}
-              isMulti
-              options={subjectOption}
-              onChange={(value) => setSelectedSubjects(value)}
-            />
           </Form.Group>
           <Form.Group controlId="formAddress">
             <Form.Label>Address</Form.Label>

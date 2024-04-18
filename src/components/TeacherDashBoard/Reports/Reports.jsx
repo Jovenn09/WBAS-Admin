@@ -67,9 +67,7 @@ const Reports = () => {
       .select(
         `
       student_id,
-      students (
-        name
-      ),
+      student_name,
       subject_id,
       subjects (
         subject_description
@@ -207,7 +205,7 @@ const Reports = () => {
                         day: "numeric",
                       })}
                     </td>
-                    <td>{attendance.students.name}</td>
+                    <td>{attendance.student_name}</td>
                     <td>
                       {attendance.subject_id} -{" "}
                       {attendance.subjects.subject_description}

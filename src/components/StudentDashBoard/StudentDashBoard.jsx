@@ -34,7 +34,6 @@ function AttendanceAlert() {
 }
 
 const StudentDashboard = () => {
-  const history = useHistory();
   const { user, setUser } = useContext(AuthContext);
 
   const [studentName, setStudentName] = useState("");
@@ -44,6 +43,10 @@ const StudentDashboard = () => {
     const name = userProfile ? userProfile.name : "";
     setStudentName(name);
   }, []);
+
+  useEffect(() => {
+    console.log(user.student_id);
+  }, [user]);
 
   const [attendanceData, setAttendanceData] = useState([]);
   const [totalAbsents, setTotalAbsents] = useState(0);
@@ -118,7 +121,7 @@ const StudentDashboard = () => {
     `
       )
       .ilike("subject_id", `%${selectedSubject}%`)
-      .eq("student_id", user.id)
+      .eq("student_id", user.student_id)
       .eq("attendance_status", "absent")
       .range(start, end);
 
@@ -134,6 +137,7 @@ const StudentDashboard = () => {
     );
     setSubjects(uniqueData);
     setAttendanceData(data);
+    console.log(data);
   }
 
   async function getTotalAbsents() {
@@ -141,7 +145,7 @@ const StudentDashboard = () => {
       .from("attendance")
       .select("*", { count: "exact" })
       .eq("attendance_status", "absent")
-      .eq("student_id", user.id);
+      .eq("student_id", user.student_id);
     setTotalAbsents(count);
   }
 

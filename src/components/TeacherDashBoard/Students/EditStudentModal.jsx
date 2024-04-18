@@ -6,28 +6,37 @@ import "./AddStudentModal.css";
 import Swal from "sweetalert2";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 
-const AddStudentModal = ({
+const EditStudentModal = ({
   show,
-  onClose,
   section,
   subject,
   getStudentsBySection,
+  currentStudentNum,
+  setCurrentStudentNum,
+  currentStudentName,
+  setCurrentStudentName,
+  showEditModal,
+  setShowEditModal,
 }) => {
-  const [studentName, setStudentName] = useState("");
-  const [studentNumber, setStudentNumber] = useState("");
+  const [newStudentNum, setNewStudentNum] = useState(currentStudentNum);
+  const [newStudentName, setNewStudentName] = useState(currentStudentName);
 
   const handleSubmit = async (e) => {
     try {
       const { data, error } = await supabaseAdmin
         .from("student_record")
-        .insert([
+        .update([
           {
-            id: studentNumber,
-            name: studentName,
+            id: newStudentNum,
+            name: newStudentName,
             section: section,
             subject: subject,
           },
         ])
+        .eq("id", currentStudentNum)
+        .eq("name", currentStudentName)
+        .eq("subject", subject)
+        .eq("section", section)
         .select();
 
       if (error) {
@@ -43,10 +52,8 @@ const AddStudentModal = ({
         timer: 1500,
         timerProgressBar: true,
       });
-      onClose();
 
-      setStudentName("");
-      setStudentNumber("");
+      setShowEditModal(false);
       getStudentsBySection();
     } catch (error) {
       Swal.fire({
@@ -69,9 +76,9 @@ const AddStudentModal = ({
         centered
         show={show}
       >
-        <Modal.Header closeButton onHide={onClose}>
+        <Modal.Header closeButton onHide={() => setShowEditModal(false)}>
           <Modal.Title id="contained-modal-title-vcenter">
-            Add Student
+            Edit Student
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -81,7 +88,8 @@ const AddStudentModal = ({
               <Form.Control
                 type="text"
                 placeholder="Enter student number"
-                onChange={(e) => setStudentNumber(e.target.value)}
+                defaultValue={currentStudentNum}
+                onChange={(e) => setNewStudentNum(e.target.value)}
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
@@ -89,18 +97,15 @@ const AddStudentModal = ({
               <Form.Control
                 type="email"
                 placeholder="Enter student full name"
-                onChange={(e) => setStudentName(e.target.value)}
+                defaultValue={currentStudentName}
+                onChange={(e) => setNewStudentName(e.target.value)}
               />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            disabled={!(!!studentName && !!studentNumber)}
-            variant="success"
-            onClick={handleSubmit}
-          >
-            ADD
+          <Button variant="success" onClick={handleSubmit}>
+            UPDATE
           </Button>
         </Modal.Footer>
       </Modal>
@@ -108,4 +113,4 @@ const AddStudentModal = ({
   );
 };
 
-export default AddStudentModal;
+export default EditStudentModal;

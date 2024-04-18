@@ -20,12 +20,12 @@
   border-radius: 5px;
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 }
-.absence-container{
+.absence-container {
   border: 1px solid #ddd;
   padding: 20px;
   margin-top: 20px;
   background-color: rgb(255, 255, 255);
-  border-bottom: 3px solid rgb(43, 6, 250) ;
+  border-bottom: 3px solid rgb(43, 6, 250);
   border-radius: 20px;
 }
 
@@ -51,7 +51,7 @@ p {
 
 button {
   padding: 10px 20px;
-  background-color:  #0bc452;
+  background-color: #0bc452;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -59,9 +59,10 @@ button {
   transition: background-color 0.3s ease;
 }
 
-button:hover {
+/* button:hover {
   background-color: #07923d;
-}
+} */
+
 .attendance-card {
   border: 1px solid #ccc;
   padding: 20px;
@@ -70,32 +71,28 @@ button:hover {
   border-radius: 5px;
 }
 
-
 .today-attendance-card {
-  background-color: #e1f7e7; 
+  background-color: #e1f7e7;
 }
-
 
 .pending-attendance-card {
   background-color: #ffe4e1;
 }
 .attendance-link {
-  text-decoration: none; 
-  color: #2b2b2b; 
+  text-decoration: none;
+  color: #2b2b2b;
 }
 
 @media (max-width: 768px) {
   .dashboard-container {
-    margin-left: 100px; 
+    margin-left: 100px;
   }
 
   .collapsed .dashboard-container {
-    margin-left: 0; 
+    margin-left: 0;
   }
 
   .dashboard-content {
     padding: 10px;
   }
-
-  
 }

@@ -18,22 +18,11 @@ const EditStudentModal = ({
     email: "",
     course: "",
     year_level: "",
-    sections: [],
-    subjects: [],
     address: "",
     contact_number: "",
     student_id: "",
     admission_status: "regular",
   });
-
-  const [sections, setSections] = useState([]);
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
-
-  const [sectionOption, setSectionOption] = useState([]);
-  const [subjectOption, setSubjectOption] = useState([]);
-
-  const [defaultSections, setDefaultSections] = useState([]);
-  const [defaultSubjects, setDefaultSubjects] = useState([]);
 
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -42,19 +31,6 @@ const EditStudentModal = ({
 
       if (sections.error) console.error(sections.error);
 
-      const subjectOptions = subjects.data.map((data) => ({
-        value: data.subject_code,
-        label: `${data.subject_code} - ${data.subject_description}`,
-      }));
-
-      const sectionOptions = sections.data.map((data) => ({
-        value: data.section_code,
-        label: data.section_code,
-      }));
-
-      setSubjectOption(subjectOptions);
-      setSectionOption(sectionOptions);
-
       const { data, error } = await supabaseAdmin
         .from("students")
         .select("*")
@@ -62,18 +38,6 @@ const EditStudentModal = ({
 
       if (error) return console.error(`Error ${error}`);
       setEditStudentData(data[0]);
-
-      setDefaultSubjects(
-        subjectOptions.filter((subject) =>
-          data[0].subjects.includes(subject.value)
-        )
-      );
-
-      setDefaultSections(
-        sectionOptions.filter((section) =>
-          data[0].sections.includes(section.value)
-        )
-      );
     };
     if (studentId) {
       fetchStudentData();
@@ -89,14 +53,6 @@ const EditStudentModal = ({
   };
 
   const handleSubmit = async () => {
-    if (!sections.length || !selectedSubjects.length) {
-      alert("Please fill all the required field");
-      return;
-    }
-
-    editStudentData.sections = sections.map((data) => data.value);
-    editStudentData.subjects = selectedSubjects.map((data) => data.value);
-
     const { data, error: updateUserError } =
       await supabaseAdmin.auth.admin.updateUserById(studentId, {
         email: editStudentData.email,
@@ -118,18 +74,6 @@ const EditStudentModal = ({
       text: "Account updated successfully.",
     });
   };
-
-  useEffect(() => {
-    setSections(defaultSections);
-  }, [defaultSections]);
-
-  useEffect(() => {
-    setSelectedSubjects(defaultSubjects);
-  }, [defaultSubjects]);
-
-  // useEffect(() => {
-  //   console.log(JSON.stringify(editStudentData, null, 2));
-  // }, [editStudentData]);
 
   return (
     <Modal show={show} onHide={closeModal}>
@@ -205,28 +149,6 @@ const EditStudentModal = ({
               <option value="3rd Year College">3rd Year College</option>
               <option value="4th Year College">4th Year College</option>
             </Form.Select>
-          </Form.Group>
-          <Form.Group controlId="formSubjects">
-            <Form.Label>Section</Form.Label>
-            <Select
-              defaultValue={defaultSections}
-              closeMenuOnSelect={false}
-              components={animatedComponents}
-              isMulti
-              options={sectionOption}
-              onChange={(value) => setSections(value)}
-            />
-          </Form.Group>
-          <Form.Group controlId="formSubjects">
-            <Form.Label>Subjects</Form.Label>
-            <Select
-              defaultValue={defaultSubjects}
-              closeMenuOnSelect={false}
-              components={animatedComponents}
-              isMulti
-              options={subjectOption}
-              onChange={(value) => setSelectedSubjects(value)}
-            />
           </Form.Group>
           <Form.Group controlId="forAddress">
             <Form.Label>Address</Form.Label>

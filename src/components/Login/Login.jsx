@@ -44,7 +44,14 @@ const Login = () => {
         throw new Error("Can't sign you in");
       }
 
-      setUser(data.user);
+      let { data: students } = await supabase
+        .from("students")
+        .select("student_id")
+        .eq("uuid", data.user.id);
+
+      console.log(students);
+
+      setUser({ student_id: students[0].student_id, ...data.user });
     } catch (error) {
       const message = error?.message ?? "Something went wrong";
       Swal.fire({

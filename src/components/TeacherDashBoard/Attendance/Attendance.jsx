@@ -78,11 +78,11 @@ const Attendance = () => {
 
   async function showStudents() {
     const students = await supabase
-      .from("students")
+      .from("student_record")
       .select("*", { count: "exact" })
       .order("name", { ascending: true })
-      .contains("subjects", [selectedClass])
-      .contains("sections", [selectedSection]);
+      .eq("subject", selectedClass)
+      .eq("section", selectedSection);
 
     setStudents(students.data);
 
@@ -90,7 +90,8 @@ const Attendance = () => {
 
     const defaultAttendance = students.data.map((student) => ({
       teacher_id: user.id,
-      student_id: student.uuid,
+      student_id: student.id,
+      student_name: student.name,
       subject_id: selectedClass,
       section_id: selectedSection,
       date: selectedDate,
@@ -100,30 +101,30 @@ const Attendance = () => {
     setStudentAttendance(defaultAttendance);
   }
 
-  async function paginateStudents() {
-    const start = (activePage - 1) * itemsPerPage;
-    const end = activePage * itemsPerPage - 1;
+  // async function paginateStudents() {
+  //   const start = (activePage - 1) * itemsPerPage;
+  //   const end = activePage * itemsPerPage - 1;
 
-    const students = await supabase
-      .from("students")
-      .select("*")
-      .order("name", { ascending: true })
-      .contains("subjects", [selectedClass])
-      .contains("sections", [selectedSection])
-      .range(start, end);
+  //   const students = await supabase
+  //     .from("students")
+  //     .select("*")
+  //     .order("name", { ascending: true })
+  //     .contains("subjects", [selectedClass])
+  //     .contains("sections", [selectedSection])
+  //     .range(start, end);
 
-    setStudents(students.data);
-  }
+  //   setStudents(students.data);
+  // }
 
-  useEffect(() => {
-    if (students.length !== 0) {
-      paginateStudents();
-    }
-  }, [activePage]);
+  // useEffect(() => {
+  //   if (students.length !== 0) {
+  //     paginateStudents();
+  //   }
+  // }, [activePage]);
 
-  const handlePageChange = (pageNumber) => {
-    setActivePage(pageNumber);
-  };
+  // const handlePageChange = (pageNumber) => {
+  //   setActivePage(pageNumber);
+  // };
 
   const handleAttendanceStatusChange = (studentId, status) => {
     if (status === "Absent") {
@@ -163,11 +164,21 @@ const Attendance = () => {
       });
     }
 
-    const attendanceRecord = studentAttendance.map((data) =>
-      absentStudents.includes(data.student_id)
-        ? { ...data, attendance_status: "absent", date: selectedDate }
-        : { ...data, date: selectedDate }
-    );
+    // const attendanceRecord = studentAttendance.map((data) =>
+    //   absentStudents.includes(data.student_id)
+    //     ? { ...data, attendance_status: "absent", date: selectedDate }
+    //     : { ...data, date: selectedDate }
+    // );
+
+    const attendanceRecord = studentAttendance
+      .filter((data) => absentStudents.includes(data.student_id))
+      .map((data) => ({
+        ...data,
+        attendance_status: "absent",
+        date: selectedDate,
+      }));
+
+    console.log(attendanceRecord);
 
     if (attendanceRecord.length === 0) return;
 
@@ -194,56 +205,6 @@ const Attendance = () => {
       text: "Attendance Submitted",
       icon: "success",
     });
-
-    // const attendanceData = {
-    //   teacherID: teacherId,
-    //   selectedClass: selectedClass,
-    //   selectedDate: selectedDate,
-    //   studentData: students
-    //     .filter((student) => attendanceStatus[student.user_id])
-    //     .map((student) => ({
-    //       user_id: student.user_id,
-    //       attendance: attendanceStatus[student.user_id],
-    //     })),
-    // };
-
-    // axios
-    //   .post("http://localhost:8081/submit-attendance", attendanceData)
-    //   .then((response) => {
-    //     if (response.data && response.data.responses) {
-    //       response.data.responses.forEach((item) => {
-    //         console.log(item.status);
-    //         if (item.status === 409) {
-    //           Swal.fire({
-    //             title: "Warning!",
-    //             text: item.message,
-    //             icon: "warning",
-    //             timer: 1500,
-    //             timerProgressBar: true,
-    //             didClose: () => {
-    //               window.location.reload();
-    //             },
-    //           });
-    //         } else {
-    //           Swal.fire({
-    //             title: "Success!",
-    //             text: item.message,
-    //             icon: "success",
-    //             timer: 1500,
-    //             timerProgressBar: true,
-    //             didClose: () => {
-    //               window.location.reload();
-    //             },
-    //           });
-    //         }
-    //       });
-    //     } else {
-    //       console.log("Invalid response format");
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error submitting attendance data:", error);
-    //   });
   };
 
   function getCurrentDate() {
@@ -321,6 +282,7 @@ const Attendance = () => {
           <table>
             <thead>
               <tr>
+                <th></th>
                 <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Attendance</th>
@@ -332,9 +294,10 @@ const Attendance = () => {
                   <td colSpan="8">No Student Found</td>
                 </tr>
               ) : (
-                students.map((student) => (
-                  <tr key={student.uuid}>
-                    <td>{student.student_id}</td>
+                students.map((student, index) => (
+                  <tr key={student.id}>
+                    <td>{index + 1}</td>
+                    <td>{student.id}</td>
                     <td>{student.name}</td>
                     <td>
                       <div className="attendance-options">
@@ -342,12 +305,11 @@ const Attendance = () => {
                           <input
                             type="radio"
                             value="Present"
-                            name={`attendance-${student.uuid}`}
+                            name={`attendance-${student.id}`}
                             defaultChecked
-                            // checked={!absentStudents.includes(student.uuid)}
                             onChange={() =>
                               handleAttendanceStatusChange(
-                                student.uuid,
+                                student.id,
                                 "Present"
                               )
                             }
@@ -358,13 +320,9 @@ const Attendance = () => {
                           <input
                             type="radio"
                             value="Absent"
-                            name={`attendance-${student.uuid}`}
-                            // checked={absentStudents.includes(student.uuid)}
+                            name={`attendance-${student.id}`}
                             onChange={() =>
-                              handleAttendanceStatusChange(
-                                student.uuid,
-                                "Absent"
-                              )
+                              handleAttendanceStatusChange(student.id, "Absent")
                             }
                           />
                           Absent
@@ -377,7 +335,7 @@ const Attendance = () => {
             </tbody>
           </table>
 
-          <Pagination>
+          {/* <Pagination>
             <Pagination.Prev
               onClick={() => handlePageChange(activePage - 1)}
               disabled={activePage === 1}
@@ -397,7 +355,7 @@ const Attendance = () => {
               onClick={() => handlePageChange(activePage + 1)}
               disabled={activePage === Math.ceil(totalStudents / itemsPerPage)}
             />
-          </Pagination>
+          </Pagination> */}
         </div>
 
         <div className="submit-section">

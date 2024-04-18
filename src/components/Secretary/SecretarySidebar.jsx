@@ -80,7 +80,7 @@ const SecretarySidebar = () => {
               activeClassName="active"
             >
               <FaUserGraduate style={iconStyle} />
-              Assign Section
+              Assign Students
             </NavLink>
           </li>
           <li>

@@ -184,7 +184,7 @@ const AssignStudents = () => {
         return obj;
       });
 
-      console.log("Converted data:", dataObjects);
+      console.log(dataObjects);
       setImportedData(dataObjects);
     };
 

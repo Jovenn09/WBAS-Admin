@@ -13,6 +13,7 @@ const Reports = () => {
 
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [reportData, setReportData] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -79,6 +80,7 @@ const Reports = () => {
       )
       .ilike("subject_id", `%${selectedClass}%`)
       .ilike("section_id", `%${selectedSection}%`)
+      .ilike("student_name", `%${searchTerm}%`)
       .eq("teacher_id", user.id)
       .eq("attendance_status", "absent")
       .order("date", { ascending: false })
@@ -99,7 +101,14 @@ const Reports = () => {
 
   useEffect(() => {
     getAttendanceRecord();
-  }, [selectedClass, startDate, endDate, activePage, selectedSection]);
+  }, [
+    selectedClass,
+    startDate,
+    endDate,
+    activePage,
+    selectedSection,
+    searchTerm,
+  ]);
 
   const handlePrintReport = () => {
     window.print();
@@ -176,6 +185,14 @@ const Reports = () => {
             ))}
           </select>
         </div>
+        <br />
+        <input
+          style={{ width: "200px" }}
+          type="text"
+          placeholder="Search by Name"
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <br />
         <br />
         <button className="print-button" onClick={handlePrintReport}>
           Print Report

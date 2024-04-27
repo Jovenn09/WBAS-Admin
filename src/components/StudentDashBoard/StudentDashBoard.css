@@ -20,12 +20,10 @@ header {
   display: inline-block;
 }
 
-
 .drop-trigger {
   padding: 10px;
   cursor: pointer;
 }
-
 
 .dropdown-content {
   display: none;
@@ -38,19 +36,17 @@ header {
   width: 150px;
 }
 
-
 .dropdown-content a {
   color: #333;
   text-decoration: none;
   display: block;
   padding: 8px;
   transition: background-color 0.3s;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
 }
 .dropdown-content a.active,
 .dropdown-content a:hover {
   background-color: #e0e0e0;
-  
 }
 
 .header-active {
@@ -74,23 +70,23 @@ header {
 
 a {
   color: rgb(12, 12, 12);
-  text-decoration: none; 
+  text-decoration: none;
 }
-.date-filter{
+.date-filter {
   margin-left: 5px;
 }
-.subject-filter{
+.subject-filter {
   max-width: 150px;
   margin-left: 10px;
   padding: 3px;
 }
-.subject-container{
+.subject-container {
   margin-left: 10px;
 }
 .logout-button {
   position: absolute;
   top: 0;
-  right: 10px; 
+  right: 10px;
   padding: 10px;
   background-color: #007bff;
   color: #fff;
@@ -102,6 +98,10 @@ a {
 
 .student-dashboard h2 {
   margin-bottom: 20px;
+}
+
+.personal-attendance {
+  margin-top: 2rem;
 }
 
 .personal-attendance h3,
@@ -126,7 +126,6 @@ table th {
   background-color: #f0f0f0;
 }
 
-
 .green {
   color: green;
 }
@@ -134,7 +133,7 @@ table th {
 .red {
   color: red;
 }
-.orange{
+.orange {
   color: orange;
 }
 .attendance-summary {
@@ -142,16 +141,13 @@ table th {
   padding: 20px;
   margin-top: 20px;
   background-color: rgb(255, 255, 255);
-  border-bottom: 3px solid rgb(43, 6, 250) ;
+  border-bottom: 3px solid rgb(43, 6, 250);
   border-radius: 20px;
-  
 }
-
 
 .attendance-summary h3 {
   font-size: 25px;
   margin-bottom: 10px;
-
 }
 
 .attendance-summary p {
@@ -159,23 +155,22 @@ table th {
   font-size: 20px;
 }
 .absence-warning {
-  background-color: #e42222; 
-  color: #fff; 
-  padding: 15px; 
-  border-radius: 5px; 
-  text-align: center; 
-  font-size: 16px; 
-  line-height: 1.5; 
-  margin: 10px 0; 
+  background-color: #e42222;
+  color: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 10px 0;
   width: 550px;
-  transition: background-color 0.3s, transform 0.3s; 
+  transition: background-color 0.3s, transform 0.3s;
 }
 
 .absence-warning:hover {
-  background-color: #ff0000; 
+  background-color: #ff0000;
   transform: scale(1.02);
 }
-
 
 @media only screen and (max-width: 600px) {
   header {

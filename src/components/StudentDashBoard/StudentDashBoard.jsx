@@ -5,9 +5,8 @@ import { Pagination } from "react-bootstrap";
 import "./StudentDashBoard.css";
 import Swal from "sweetalert2";
 import supabase from "../../config/supabaseClient";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { AuthContext } from "../../context/AuthContext";
-
+import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 
 function AttendanceAlert() {
@@ -51,6 +50,9 @@ const StudentDashboard = () => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [totalAbsents, setTotalAbsents] = useState(0);
 
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -58,6 +60,7 @@ const StudentDashboard = () => {
   const itemsPerPage = 10;
 
   const [subjects, setSubjects] = useState([]);
+  const [subjectTotalAttendance, setSubjectTotalAttendance] = useState([]);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -125,7 +128,7 @@ const StudentDashboard = () => {
       .eq("attendance_status", "absent")
       .range(start, end);
 
-    if (selectedDate) query.eq("date", selectedDate);
+    if (startDate && endDate) query.lte("date", endDate).gte("date", startDate);
 
     const { data, error } = await query;
 
@@ -155,7 +158,13 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     getAttendanceData();
-  }, [selectedSubject, currentPage, selectedDate]);
+  }, [selectedSubject, currentPage]);
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      getAttendanceData();
+    }
+  }, [startDate, endDate]);
 
   async function getStudentName() {
     const { data, error } = await supabase
@@ -171,6 +180,30 @@ const StudentDashboard = () => {
   useEffect(() => {
     getStudentName();
   }, [user]);
+
+  async function getTotalAbsentsBySubject() {
+    const data = await Promise.all(
+      subjects.map(async (item) => {
+        const { count } = await supabase
+          .from("attendance")
+          .select("*", { count: "exact", head: true })
+          .eq("subject_id", item.subject_id)
+          .eq("student_id", user.student_id);
+
+        return {
+          count,
+          name: `${item.subject_id} - ${item.subjects.subject_description}`,
+        };
+      })
+    );
+
+    setSubjectTotalAttendance(data);
+  }
+
+  useEffect(() => {
+    if (!subjects.length) return;
+    getTotalAbsentsBySubject();
+  }, [subjects]);
 
   return (
     <div>
@@ -216,40 +249,56 @@ const StudentDashboard = () => {
         <h2>
           WELCOME <br /> {studentName}
         </h2>
-        <div>
-          <label htmlFor="dateFilter">Filter by Date:</label>
-          <input
-            type="date"
-            id="dateFilter"
-            onChange={(e) => handleDateFilter(e.target.value)}
-            className="date-filter"
-            value={selectedDate}
-          />
-          <label htmlFor="subjectFilter" className="subject-container">
-            Filter by Subject:
-          </label>
-          <select
-            id="subjectFilter"
-            onChange={(e) => handleSubjectFilter(e.target.value)}
-            className="subject-filter"
-            value={selectedSubject}
-          >
-            <option value="">All Subjects</option>
-            {subjects.map((data) => (
-              <option key={data.subject_id} value={data.subject_id}>
-                {data.subjects.subject_description}
-              </option>
-            ))}
-          </select>
+        <Form onSubmit={(e) => e.preventDefault()}>
+          <Form.Group className="mb-2">
+            <fieldset
+              className="d-flex align-items-center justify-content-start flex-row"
+              style={{ gap: "1rem" }}
+            >
+              <div style={{ gap: "1rem", width: "90%", maxWidth: "200px" }}>
+                <Form.Label htmlFor="dateFilter" className="flex-fill">
+                  Start Date:
+                </Form.Label>
+                <Form.Control
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                ></Form.Control>
+              </div>
+              <div style={{ gap: "1rem", width: "90%", maxWidth: "200px" }}>
+                <Form.Label htmlFor="dateFilter">End Date:</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                ></Form.Control>
+              </div>
+            </fieldset>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label htmlFor="subjectFilter">Filter by Subjec:</Form.Label>
+            <Form.Select
+              style={{ width: "100%", maxWidth: "350px" }}
+              value={selectedSubject}
+              onChange={(e) => handleSubjectFilter(e.target.value)}
+            >
+              <option value="">All Subjects</option>
+              {subjects.map((data) => (
+                <option key={data.subject_id} value={data.subject_id}>
+                  {data.subjects.subject_description}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
           <button
+            className="mt-3"
             onClick={() => {
-              setSelectedDate("");
-              setSelectedSubject("");
+              window.location.reload();
             }}
           >
             Clear Filter
           </button>
-        </div>
+        </Form>
 
         <div className="personal-attendance">
           <h3>Personal Attendance Report</h3>
@@ -309,8 +358,13 @@ const StudentDashboard = () => {
         </div>
         <div className="attendance-summary">
           <h3>Attendance Summary</h3>
-          {/* <p>Total Present: {calculatePresentDays(filteredAttendanceData)}</p> */}
           <p>Total Absences: {totalAbsents}</p>
+          <hr />
+          {subjectTotalAttendance.map(({ count, name }) => (
+            <span>
+              {name}:&nbsp;&nbsp;<strong>{count}</strong>
+            </span>
+          ))}
         </div>
         <div className="footer">
           <h6>© 2023 School Attendance System. All rights reserved.</h6>

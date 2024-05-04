@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./Reports.css";
 import supabase from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
+import XLSX from "xlsx";
 
 const Reports = () => {
   const { user } = useContext(AuthContext);
@@ -122,6 +123,72 @@ const Reports = () => {
     console.log(recordCount);
   }, [recordCount]);
 
+  async function exportToCsv(recordsNum) {
+    let query = supabase
+      .from("attendance")
+      .select(
+        `
+      student_id,
+      student_name,
+      subject_id,
+      subjects (
+        subject_description
+      ),
+      attendance_status,
+      date
+      `
+      )
+      .eq("teacher_id", user.id)
+      .ilike("subject_id", `%${selectedClass}%`)
+      .ilike("section_id", `%${selectedSection}%`)
+      .ilike("student_name", `%${searchTerm}%`)
+      .order("date", { ascending: false });
+
+    if (startDate && endDate) {
+      query.lte("date", endDate).gte("date", startDate);
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      return alert("something went wrong");
+    }
+
+    const rows = data.map((obj) => ({
+      date: obj.date,
+      studentName: obj.student_name,
+      subject: `${obj.subject_id} - ${obj.subjects.subject_description}`,
+      status: obj.attendance_status,
+    }));
+
+    console.log(rows);
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Dates");
+
+    const headers = XLSX.utils.sheet_add_aoa(
+      worksheet,
+      [["Date", "Student Name", "Subject", "Status"]],
+      {
+        origin: "A1",
+      }
+    );
+
+    const columns_width = ["date", "studentName", "subject", "status"].map(
+      (data) => {
+        const max_width = rows.reduce(
+          (w, r) => Math.max(w, r[data].length),
+          10
+        );
+        return { wch: max_width + 2 };
+      }
+    );
+    worksheet["!cols"] = columns_width;
+
+    XLSX.writeFile(workbook, "Attendance_Record.xlsx", { compression: true });
+  }
+
   return (
     <div className="report-container">
       <h1>Attendance Report</h1>
@@ -196,6 +263,9 @@ const Reports = () => {
         <br />
         <button className="print-button" onClick={handlePrintReport}>
           Print Report
+        </button>
+        <button className="print-button" onClick={exportToCsv}>
+          Download CSV
         </button>
       </div>
       <div className="attendance-report">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { supabaseAdmin } from "../../../config/supabaseClient";
 import Swal from "sweetalert2";
+import { supabaseAdmin } from "../../../../config/supabaseClient";
 
 const EditTeacherModal = ({
   show,

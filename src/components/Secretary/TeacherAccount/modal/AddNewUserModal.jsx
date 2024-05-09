@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { supabaseAdmin } from "../../../config/supabaseClient";
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
 import randomstring from "randomstring";
+import { supabaseAdmin } from "../../../../config/supabaseClient";
 
 const iconStyle = {
   position: "absolute",

@@ -8,10 +8,14 @@ import {
   FaUserGraduate,
   FaBook,
   FaSignOutAlt,
+  FaChalkboardTeacher,
 } from "react-icons/fa";
+import { GiBookshelf } from "react-icons/gi";
+import { SiGoogleclassroom } from "react-icons/si";
 import Swal from "sweetalert2";
 import supabase from "../../config/supabaseClient";
 import { AuthContext } from "../../context/AuthContext";
+import { MdSupervisorAccount } from "react-icons/md";
 
 const SecretarySidebar = () => {
   const { setUser } = useContext(AuthContext);
@@ -71,12 +75,12 @@ const SecretarySidebar = () => {
       </button>
       <div className="sidebar-content">
         {!collapsed && (
-          <div className="welcome-message">Welcome, Secretary {username}!</div>
+          <div className="welcome-message">Welcome, Admin {username}!</div>
         )}
         <ul>
           <li>
             <NavLink
-              to="/secretary-sidebar/assign-students"
+              to="/admin-sidebar/assign-students"
               activeClassName="active"
             >
               <FaUserGraduate style={iconStyle} />
@@ -85,11 +89,44 @@ const SecretarySidebar = () => {
           </li>
           <li>
             <NavLink
-              to="/secretary-sidebar/list-of-students"
+              to="/admin-sidebar/list-of-students"
               activeClassName="active"
             >
               <FaBook style={iconStyle} />
               Instructor Handles
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/admin-sidebar/teacher-account"
+              activeClassName="active"
+            >
+              <FaChalkboardTeacher style={iconStyle} />
+              Teacher Account
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/admin-sidebar/subjects" activeClassName="active">
+              <GiBookshelf style={iconStyle} />
+              Subjects
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/admin-sidebar/student-account"
+              activeClassName="active"
+            >
+              <MdSupervisorAccount style={iconStyle} />
+              Student Account
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/admin-sidebar/section-management"
+              activeClassName="active"
+            >
+              <SiGoogleclassroom style={iconStyle} />
+              Sections
             </NavLink>
           </li>
           <li>

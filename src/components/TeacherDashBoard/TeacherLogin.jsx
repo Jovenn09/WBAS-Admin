@@ -8,7 +8,6 @@ import { Button } from "react-bootstrap";
 import ForgotPasswordModal from "../Login/ForgotPasswordModal";
 
 const TeacherLogin = () => {
-  const history = useHistory();
   const { setUser } = useContext(AuthContext);
   const [state, setState] = useState({
     username: "",

@@ -30,7 +30,7 @@ const SecretaryLogin = () => {
       });
 
       if (error) throw new Error(error.message);
-      if (data.user.user_metadata?.access !== "secretary") {
+      if (data.user.user_metadata?.access !== "admin") {
         await supabase.auth.signOut();
         throw new Error("Can't sign you in");
       }

@@ -1,23 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { supabaseAdmin } from "../../../config/supabaseClient";
+import { supabaseAdmin } from "../../../../config/supabaseClient";
 
-const AddNewSubjectModal = ({ show, closeModal }) => {
-  const [subjectDescription, setSubjectDescription] = useState("");
-  const [subjectCode, setSubjectCode] = useState("");
-  const [yearLevel, setYearLevel] = useState("1st Year College");
+const AddNewSectionModal = ({ show, closeModal, refetchData }) => {
+  const [sectionCode, setSectionCode] = useState("");
+  const [sectionYear, setSectionYear] = useState("1st Year College");
 
-  const handleSubmit = async () => {
-    const subjectData = {
-      subject_description: subjectDescription,
-      subject_code: subjectCode,
-      year_level: yearLevel,
-    };
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const { error: insertError } = await supabaseAdmin
-      .from("subjects")
-      .insert(subjectData);
+      .from("sections")
+      .insert({ section_code: sectionCode, year_level: sectionYear });
 
     if (insertError) {
       Swal.fire({
@@ -28,17 +22,18 @@ const AddNewSubjectModal = ({ show, closeModal }) => {
       return;
     }
 
+    setSectionCode("");
+    refetchData();
     Swal.fire({
       icon: "success",
       title: "Success!",
-      text: "Subject created successfully!",
+      text: "Section created successfully!",
     });
     closeModal();
   };
 
   useEffect(() => {
-    setSubjectDescription("");
-    setSubjectCode("");
+    setSectionCode("");
   }, [closeModal]);
 
   return (
@@ -47,30 +42,21 @@ const AddNewSubjectModal = ({ show, closeModal }) => {
         <Modal.Title>Add New Subject</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form>
+        <Form onSubmit={(e) => e.preventDefault()}>
           <Form.Group controlId="formSubjectCode">
-            <Form.Label>Subject Code</Form.Label>
+            <Form.Label>Section Code</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter subject code"
-              value={subjectCode}
-              onChange={(e) => setSubjectCode(e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group controlId="formSubjectDescription">
-            <Form.Label>Subject Description</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter subject description"
-              value={subjectDescription}
-              onChange={(e) => setSubjectDescription(e.target.value)}
+              placeholder="Enter Section code"
+              value={sectionCode}
+              onChange={(e) => setSectionCode(e.target.value)}
             />
           </Form.Group>
           <Form.Group controlId="formYearLevel">
             <Form.Label>Year Level</Form.Label>
             <Form.Select
-              value={yearLevel}
-              onChange={(e) => setYearLevel(e.target.value)}
+              value={sectionYear}
+              onChange={(e) => setSectionYear(e.target.value)}
             >
               <option value="1st Year College">1st Year College</option>
               <option value="2nd Year College">2nd Year College</option>
@@ -82,7 +68,7 @@ const AddNewSubjectModal = ({ show, closeModal }) => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="primary" onClick={handleSubmit}>
-          Add Subject
+          Add Section
         </Button>
         <Button variant="secondary" onClick={closeModal}>
           Close
@@ -92,4 +78,4 @@ const AddNewSubjectModal = ({ show, closeModal }) => {
   );
 };
 
-export default AddNewSubjectModal;
+export default AddNewSectionModal;

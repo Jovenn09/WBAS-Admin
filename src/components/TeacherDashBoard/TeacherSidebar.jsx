@@ -13,13 +13,11 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import supabase from "../../config/supabaseClient";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
 
 const TeacherSidebar = () => {
   const { user, setUser } = useContext(AuthContext);
-  let history = useHistory();
 
   const [teacherName, setTeacherName] = useState("");
 

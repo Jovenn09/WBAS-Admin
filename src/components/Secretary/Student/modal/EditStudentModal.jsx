@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { supabaseAdmin } from "../../../config/supabaseClient";
+import { supabaseAdmin } from "../../../../config/supabaseClient";
 import Swal from "sweetalert2";
-import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
 const animatedComponents = makeAnimated();

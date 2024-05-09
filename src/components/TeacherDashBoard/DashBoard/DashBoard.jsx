@@ -163,14 +163,6 @@ const Dashboard = ({ collapsed }) => {
           Mark Attendance
         </button>
       </div>
-      {/* <div className="absence-container">
-        <div className="absence-warning">
-          <h5>
-            <AiFillWarning size={24} /> WARNING!
-          </h5>
-          1. Lebron James have 3 or more absences.
-        </div>
-      </div> */}
     </div>
   );
 };

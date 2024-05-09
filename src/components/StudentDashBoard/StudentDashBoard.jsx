@@ -361,13 +361,15 @@ const StudentDashboard = () => {
           <p>Total Absences: {totalAbsents}</p>
           <hr />
           {subjectTotalAttendance.map(({ count, name }) => (
-            <span>
-              {name}:&nbsp;&nbsp;<strong>{count}</strong>
-            </span>
+            <div>
+              <span>
+                {name}:&nbsp;&nbsp;<strong>{count}</strong>
+              </span>
+            </div>
           ))}
         </div>
         <div className="footer">
-          <h6>© 2023 School Attendance System. All rights reserved.</h6>
+          <h6>© 2024 School Attendance System. All rights reserved.</h6>
         </div>
       </div>
     </div>

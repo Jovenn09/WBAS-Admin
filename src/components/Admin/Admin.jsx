@@ -821,7 +821,7 @@ const Admin = () => {
         />
       </div>
       <div className="footer">
-        <h6>© 2023 School Attendance System. All rights reserved.</h6>
+        <h6>© 2024 School Attendance System. All rights reserved.</h6>
       </div>
     </div>
   );

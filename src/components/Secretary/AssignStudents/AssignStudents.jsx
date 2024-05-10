@@ -5,6 +5,33 @@ import Form from "react-bootstrap/Form";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { supabaseAdmin } from "../../../config/supabaseClient";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+
+function MyVerticallyCenteredModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+      fullscreen
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Template for .CSV File
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <h4>Image</h4>
+        <img src="/images/template.png" alt="" />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
 
 function getSchoolYear() {
   const currentDate = new Date();
@@ -28,11 +55,14 @@ const AssignStudents = () => {
     teacher: "",
     subject: "",
     section: "",
+    semester: "",
   });
 
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [sections, setSections] = useState([]);
+
+  const [modalShow, setModalShow] = React.useState(false);
 
   const [importedData, setImportedData] = useState([]);
 
@@ -90,11 +120,18 @@ const AssignStudents = () => {
     });
   };
 
+  const handleSemesterChange = (selectedOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      semester: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log(formData);
-    const { teacher, subject, section } = formData;
-    if (!teacher || !subject || !section || !importedData.length) {
+    const { teacher, subject, section, semester } = formData;
+    if (!teacher || !subject || !section || !semester || !importedData.length) {
       return Swal.fire(
         "Please fill all fields and select at least one student",
         "",
@@ -117,6 +154,7 @@ const AssignStudents = () => {
         subject_id: subject,
         section_id: section,
         school_year: getSchoolYear(),
+        semester,
       });
 
       const students = importedData.map((student) => ({
@@ -196,7 +234,7 @@ const AssignStudents = () => {
       <h2>Assign Students</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label className="assign-students-label">
+          <label className="assign-students-label" style={{ width: "200px" }}>
             Select Instructor:
             <Select
               value={teachers.find(
@@ -210,7 +248,7 @@ const AssignStudents = () => {
               required
             />
           </label>
-          <label className="assign-students-label">
+          <label className="assign-students-label" style={{ width: "200px" }}>
             Select Subject:
             <Select
               value={subjects.find(
@@ -219,12 +257,12 @@ const AssignStudents = () => {
               onChange={handleSubjectChange}
               options={subjects.map((subject) => ({
                 value: subject.subject_code,
-                label: subject.subject_description,
+                label: `${subject.subject_code} - ${subject.subject_description}`,
               }))}
               required
             />
           </label>
-          <label className="assign-students-label">
+          <label className="assign-students-label" style={{ width: "200px" }}>
             Section:
             <Select
               value={sections.find(
@@ -238,19 +276,47 @@ const AssignStudents = () => {
               required
             />
           </label>
-          <Form.Group
-            style={{ width: "fit-content" }}
-            controlId="formFile"
-            className="mb-3"
-          >
-            <Form.Label>Import</Form.Label>
-            <Form.Control
-              type="file"
-              accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              onChange={onImportHandler}
+          <label className="assign-students-label" style={{ width: "200px" }}>
+            Semester:
+            <Select
+              value={sections.find(
+                (section) => section.value === formData.section
+              )}
+              onChange={handleSemesterChange}
+              options={[
+                { value: "first semester", label: "First Semester" },
+                { value: "second semester", label: "Second Semester" },
+                { value: "summer", label: "Summer" },
+              ]}
               required
             />
-          </Form.Group>
+          </label>
+          <div className="d-flex gap-2 align-items-center">
+            <Form.Group
+              style={{ width: "fit-content" }}
+              controlId="formFile"
+              className="mb-3"
+            >
+              <Form.Label>Import</Form.Label>
+              <Form.Control
+                type="file"
+                accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                onChange={onImportHandler}
+                required
+              />
+            </Form.Group>
+            <button
+              type="button"
+              style={{
+                backgroundColor: "darkblue",
+                marginTop: "12px",
+                borderRadius: "15px",
+              }}
+              onClick={() => setModalShow(true)}
+            >
+              Show Template
+            </button>
+          </div>
         </div>
         <button type="submit">Submit</button>
       </form>
@@ -272,6 +338,10 @@ const AssignStudents = () => {
           ))}
         </tbody>
       </table>
+      <MyVerticallyCenteredModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+      />
     </div>
   );
 };

@@ -29,6 +29,7 @@ const ListStudents = () => {
   const [filterSubjects, setFilterSubjects] = useState("");
   const [filterSections, setFilterSections] = useState("");
   const [filterSchoolYear, setFilterSchoolYear] = useState("2324");
+  const [filterSemester, setFilterSemester] = useState("");
 
   const fetchAssignedStudents = async () => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -47,13 +48,15 @@ const ListStudents = () => {
         subject_description
       ),
       section_id,
-      school_year
+      school_year,
+      semester
     `
       )
       .ilike("subject_id", `%${filterSubjects?.value ?? ""}%`)
       .ilike("teacher_id", `%${filterInstructor?.value ?? ""}%`)
       .ilike("section_id", `%${filterSections?.value ?? ""}%`)
       .ilike("school_year", `%${filterSchoolYear?.value ?? ""}%`)
+      .ilike("semester", `%${filterSemester?.value ?? ""}`)
       .range(start, end);
 
     if (error) return console.error(error);
@@ -152,7 +155,13 @@ const ListStudents = () => {
 
   useEffect(() => {
     fetchAssignedStudents();
-  }, [filterSubjects, filterInstructor, filterSections, currentPage]);
+  }, [
+    filterSubjects,
+    filterInstructor,
+    filterSections,
+    currentPage,
+    filterSemester,
+  ]);
 
   useEffect(() => {
     const getOptions = async () => {
@@ -236,6 +245,20 @@ const ListStudents = () => {
             placeholder="Select School Year"
           />
         </label>
+        <label>
+          Semester:
+          <Select
+            value={filterSemester}
+            onChange={(selectedOption) => setFilterSemester(selectedOption)}
+            options={[
+              { value: "first semester", label: "First Semester" },
+              { value: "second semester", label: "Second Semester" },
+              { value: "summer", label: "Summer" },
+            ]}
+            isClearable
+            placeholder="Select School Year"
+          />
+        </label>
       </div>
 
       <table className="table">
@@ -245,6 +268,7 @@ const ListStudents = () => {
             <th>Subject</th>
             <th>Section</th>
             <th>School Year</th>
+            <th>Semester</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -253,9 +277,12 @@ const ListStudents = () => {
             return (
               <tr key={data.teacher_id + data.subject_id + data.section_id}>
                 <td>{data.teachers.name}</td>
-                <td>{data.subjects.subject_description}</td>
+                <td>
+                  {data.subject_id} - {data.subjects.subject_description}
+                </td>
                 <td>{data.section_id}</td>
                 <td>{data.school_year}</td>
+                <td style={{ textTransform: "capitalize" }}>{data.semester}</td>
                 <td>
                   <Button
                     variant="danger"

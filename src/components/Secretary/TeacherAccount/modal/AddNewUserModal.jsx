@@ -17,15 +17,18 @@ const iconStyle = {
 const phinmaEmail = /^[a-zA-Z0-9._%+-]+\.up@phinmaed\.com$/;
 
 const AddNewUserModal = ({ show, closeModal }) => {
-  const [name, setName] = useState("");
   const role = "Instructor";
+
+  const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState("");
 
   const handleSubmit = async () => {
     const userData = {
-      name: name,
+      name: `${name} ${lastName}`,
       role: role,
       email: email,
       password: password,
@@ -67,6 +70,7 @@ const AddNewUserModal = ({ show, closeModal }) => {
 
   useEffect(() => {
     setName("");
+    setLastName("");
     setEmail("");
     setPassword("");
   }, [closeModal]);
@@ -80,12 +84,20 @@ const AddNewUserModal = ({ show, closeModal }) => {
         <Form>
           <Form.Group controlId="formName">
             <Form.Label>Name</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <div className="d-flex gap-2">
+              <Form.Control
+                type="text"
+                placeholder="First Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Form.Control
+                type="text"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
           </Form.Group>
           <Form.Group controlId="formRole">
             <Form.Label>Role</Form.Label>
@@ -130,7 +142,8 @@ const AddNewUserModal = ({ show, closeModal }) => {
         </Form>
         <Button
           style={{ marginTop: "1rem" }}
-          onClick={() => setPassword(randomstring.generate(16))}
+          onClick={() => setPassword(`${lastName}-${randomstring.generate(5)}`)}
+          disabled={!lastName}
         >
           Generate password
         </Button>

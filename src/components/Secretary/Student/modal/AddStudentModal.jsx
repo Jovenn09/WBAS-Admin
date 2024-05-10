@@ -157,9 +157,9 @@ const AddStudentModal = ({ show, closeModal }) => {
             <Form.Label>Full Name</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter Full Name"
+              placeholder="(Last Name), (First Name) (Middle Name)"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.toUpperCase())}
             />
           </Form.Group>
           <Form.Group controlId="formEmail">
@@ -248,7 +248,10 @@ const AddStudentModal = ({ show, closeModal }) => {
         </Form>
         <Button
           style={{ marginTop: "1rem" }}
-          onClick={() => setPassword(randomstring.generate(16))}
+          onClick={() =>
+            setPassword(`${name.split(" ")[0]}-${randomstring.generate(5)}`)
+          }
+          disabled={!name}
         >
           Generate password
         </Button>

@@ -3,6 +3,8 @@ import Swal from "sweetalert2";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import { FaTrash, FaPlus, FaEdit } from "react-icons/fa";
 import { Pagination } from "react-bootstrap";
+import { FaUserAltSlash } from "react-icons/fa";
+import { FaUserCheck } from "react-icons/fa";
 
 // components
 import EditTeacherModal from "./modal/EditTeacher";
@@ -49,6 +51,7 @@ export default function TeacherAccount() {
 
     setTeachersData(data);
   }
+
   async function deleteTeacher(teacherId) {
     const { data, error: authError } =
       await supabaseAdmin.auth.admin.deleteUser(teacherId);
@@ -68,6 +71,7 @@ export default function TeacherAccount() {
       text: "Account deleted successfully.",
     });
   }
+
   const confirmDelete = (teacherId) => {
     Swal.fire({
       title: "Delete Teacher Account",
@@ -80,6 +84,45 @@ export default function TeacherAccount() {
     }).then((result) => {
       if (result.isConfirmed) {
         deleteTeacher(teacherId);
+      }
+    });
+  };
+
+  async function updateUserStatus(id, status, banDuration, message) {
+    const { data, error: authError } =
+      await supabaseAdmin.auth.admin.updateUserById(id, {
+        ban_duration: banDuration,
+      });
+    if (authError) return console.error(`Error deleting teacher account`);
+
+    const { error } = await supabaseAdmin
+      .from("teachers")
+      .update({ status: status })
+      .eq("uuid", id);
+
+    if (error) return alert("something went wrong");
+
+    Swal.fire({
+      icon: "success",
+      title: "Success!",
+      text: `Account has been ${message.toLowerCase()}d.`,
+    });
+
+    fetchTeachersData();
+  }
+
+  const changeStatus = (teacherId, status, messageType, banDuration) => {
+    Swal.fire({
+      title: `${messageType} Teacher Account`,
+      text: `Are you sure you want to ${messageType} this account?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${messageType} it`,
+      cancelButtonText: "No, cancel",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        updateUserStatus(teacherId, status, banDuration, messageType);
       }
     });
   };
@@ -125,6 +168,7 @@ export default function TeacherAccount() {
             <tr>
               <th>Name</th>
               <th>Gmail</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -133,23 +177,59 @@ export default function TeacherAccount() {
               <tr key={teacher.uuid}>
                 <td>{teacher.name}</td>
                 <td>{teacher.email}</td>
+                <td>{teacher.status}</td>
                 <td>
-                  <div className="action-buttons">
-                    <button
-                      className="edit-button"
-                      title="Edit"
-                      onClick={() => handleEditClick(teacher.uuid)}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={() => confirmDelete(teacher.uuid)}
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
+                  {teacher.status === "active" ? (
+                    <div className="action-buttons">
+                      <button
+                        className="edit-button"
+                        title="Edit"
+                        onClick={() => handleEditClick(teacher.uuid)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() => confirmDelete(teacher.uuid)}
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                      <button
+                        className="disable-button"
+                        title="Disable"
+                        onClick={() =>
+                          changeStatus(
+                            teacher.uuid,
+                            "disabled",
+                            "Disable",
+                            "24h"
+                          )
+                        }
+                      >
+                        <FaUserAltSlash />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="action-buttons">
+                      <button
+                        className="delete-button"
+                        onClick={() => confirmDelete(teacher.uuid)}
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                      <button
+                        className="enable-button"
+                        title="Enable"
+                        onClick={() =>
+                          changeStatus(teacher.uuid, "active", "Enable", "none")
+                        }
+                      >
+                        <FaUserCheck />
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

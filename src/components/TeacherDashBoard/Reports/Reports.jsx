@@ -5,6 +5,9 @@ import "./Reports.css";
 import supabase from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
 import XLSX from "xlsx";
+import Table from "react-bootstrap/Table";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 const Reports = () => {
   const { user } = useContext(AuthContext);
@@ -17,8 +20,11 @@ const Reports = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [reportData, setReportData] = useState([]);
+  const [headerDate, setHeaderDate] = useState([]);
+
   const [subjects, setSubjects] = useState([]);
   const [sections, setSections] = useState([]);
+  const [students, setStudents] = useState([]);
 
   const [activePage, setActivePage] = useState(1);
   const [recordCount, setRecordCount] = useState(0);
@@ -28,6 +34,7 @@ const Reports = () => {
     const { data, error } = await supabase
       .from("assign")
       .select("section_id")
+      .eq("subject_id", selectedClass)
       .eq("teacher_id", user.id);
 
     if (error) console.log(error);
@@ -60,6 +67,36 @@ const Reports = () => {
     setSubjects(subjects);
   }
 
+  useEffect(() => {
+    getHandleSubjects();
+  }, []);
+
+  useEffect(() => {
+    if (selectedClass !== "") {
+      getSections();
+    }
+  }, [selectedClass]);
+
+  async function getStudentsBySection() {
+    const { data, error, count } = await supabase
+      .from("student_record")
+      .select("*", { count: "exact" })
+      .order("name", { ascending: true })
+      .eq("section", selectedSection)
+      .eq("subject", selectedClass)
+      .ilike("name", `%${searchTerm}%`);
+
+    if (error) return console.log(error);
+
+    setStudents(data);
+  }
+
+  useEffect(() => {
+    if (selectedSection && selectedClass) {
+      getStudentsBySection();
+    }
+  }, [selectedSection]);
+
   async function getAttendanceRecord() {
     const start = (activePage - 1) * itemsPerPage;
     const end = activePage * itemsPerPage - 1;
@@ -70,10 +107,6 @@ const Reports = () => {
         `
       student_id,
       student_name,
-      subject_id,
-      subjects (
-        subject_description
-      ),
       attendance_status,
       date
       `,
@@ -81,35 +114,37 @@ const Reports = () => {
       )
       .ilike("subject_id", `%${selectedClass}%`)
       .ilike("section_id", `%${selectedSection}%`)
-      .ilike("student_name", `%${searchTerm}%`)
       .eq("teacher_id", user.id)
-      .eq("attendance_status", "absent")
-      .order("date", { ascending: false })
-      .range(start, end);
-
-    if (startDate && endDate) {
-      query.lte("date", endDate).gte("date", startDate);
-    }
+      .order("date", { ascending: true });
 
     const { data, error, count } = await query;
-    setReportData(data);
+
+    const date = Array.from(new Set(data.map((record) => record.date)));
+    setHeaderDate(date);
+
+    const students = Array.from(
+      new Set(data.map((record) => record.student_name))
+    ).sort();
+
+    const n = students.map((student) => {
+      const att = data.filter((record) => record.student_name === student);
+
+      const newObj = { student_name: student };
+      att.forEach((att) => {
+        newObj[att.date] = att.attendance_status;
+        newObj.student_id = att.student_id;
+      });
+
+      return newObj;
+    });
+
+    setReportData(n);
     setRecordCount(count);
   }
-  useEffect(() => {
-    getHandleSubjects();
-    getSections();
-  }, []);
 
   useEffect(() => {
-    getAttendanceRecord();
-  }, [
-    selectedClass,
-    startDate,
-    endDate,
-    activePage,
-    selectedSection,
-    searchTerm,
-  ]);
+    if (selectedClass && selectedSection) getAttendanceRecord();
+  }, [selectedClass, activePage, selectedSection, searchTerm]);
 
   const handlePrintReport = () => {
     window.print();
@@ -193,7 +228,7 @@ const Reports = () => {
     <div className="report-container">
       <h1>Attendance Report</h1>
       <div className="report-controls">
-        <div className="date-range">
+        {/* <div className="date-range">
           <label htmlFor="startDate">Start Date:</label>
           <input
             type="date"
@@ -216,10 +251,10 @@ const Reports = () => {
           >
             Clear Filter
           </button>
-        </div>
+        </div> */}
         <div className="class-filter">
           <label htmlFor="classFilter" className="small-label">
-            Filter by Class:
+            Subject:
           </label>
           <select
             id="classFilter"
@@ -236,15 +271,16 @@ const Reports = () => {
           </select>
           &nbsp;
           <label htmlFor="section-filter" className="small-label">
-            Filter by Section:
+            Section:
           </label>
           <select
             id="section-filter"
             value={selectedSection}
             onChange={(e) => setSelectedSection(e.target.value)}
             className="small-select"
+            disabled={!selectedClass}
           >
-            <option value="">All</option>
+            <option value="">Select section</option>
             {sections.map((data) => (
               <option key={data.section_id} value={data.section_id}>
                 {data.section_id}
@@ -270,34 +306,49 @@ const Reports = () => {
       </div>
       <div className="attendance-report">
         {reportData.length === 0 ? (
-          <p>No Attendance Report found on selected date range and class</p>
+          <p>Please select subject and section</p>
         ) : (
           <>
             <table>
               <thead>
                 <tr>
-                  <th>Date</th>
+                  {/* <th>Date</th> */}
+                  <th>Student Number</th>
                   <th>Student Name</th>
-                  <th>Subject</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reportData.map((attendance, index) => (
-                  <tr key={index}>
-                    <td>
-                      {new Date(attendance.date).toLocaleDateString("en-US", {
+                  {/* <th>Subject</th> */}
+                  {headerDate.map((date) => (
+                    <th>
+                      {new Date(date).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
                       })}
-                    </td>
-                    <td>{attendance.student_name}</td>
-                    <td>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {reportData.map((student, index) => (
+                  <tr key={index}>
+                    <td>{student.student_id}</td>
+                    <td>{student.student_name}</td>
+                    {headerDate.map((date) => (
+                      <OverlayTrigger
+                        placement="bottom"
+                        overlay={
+                          <Tooltip id="button-tooltip">
+                            {student.student_name}
+                          </Tooltip>
+                        }
+                      >
+                        <td>{student[date].toUpperCase()}</td>
+                      </OverlayTrigger>
+                    ))}
+                    {/* <td>
                       {attendance.subject_id} -{" "}
                       {attendance.subjects.subject_description}
-                    </td>
-                    <td
+                    </td> */}
+                    {/* <td
                       style={{
                         color:
                           attendance.attendance_status === "absent"
@@ -306,13 +357,12 @@ const Reports = () => {
                       }}
                     >
                       {attendance.attendance_status}
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
             </table>
-
-            <Pagination className="pagination">
+            {/* <Pagination className="pagination">
               <Pagination.Prev
                 onClick={() => handlePageChange(activePage - 1)}
                 disabled={activePage === 1}
@@ -332,7 +382,7 @@ const Reports = () => {
                 onClick={() => handlePageChange(activePage + 1)}
                 disabled={activePage === Math.ceil(recordCount / itemsPerPage)}
               />
-            </Pagination>
+            </Pagination> */}
           </>
         )}
       </div>

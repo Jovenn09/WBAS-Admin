@@ -126,6 +126,7 @@ const StudentDashboard = () => {
       .ilike("subject_id", `%${selectedSubject}%`)
       .eq("student_id", user.student_id)
       .eq("attendance_status", "absent")
+      .order("date", { ascending: false })
       .range(start, end);
 
     if (startDate && endDate) query.lte("date", endDate).gte("date", startDate);

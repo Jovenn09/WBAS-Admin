@@ -129,7 +129,7 @@ const AssignStudents = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(formData);
+
     const { teacher, subject, section, semester } = formData;
     if (!teacher || !subject || !section || !semester || !importedData.length) {
       return Swal.fire(
@@ -138,6 +138,20 @@ const AssignStudents = () => {
         "error"
       );
     }
+
+    const { data } = await supabaseAdmin
+      .from("assign")
+      .select("*")
+      .eq("subject_id", subject)
+      .eq("section_id", section);
+
+    if (data.length > 0)
+      return Swal.fire(
+        "Error!",
+        `${subject} has already been assigned to ${section}`,
+        "error"
+      );
+
     const confirmResult = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to add these students?",
@@ -148,6 +162,7 @@ const AssignStudents = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
     });
+
     if (confirmResult.isConfirmed) {
       const { error } = await supabaseAdmin.from("assign").insert({
         teacher_id: teacher,
@@ -156,6 +171,11 @@ const AssignStudents = () => {
         school_year: getSchoolYear(),
         semester,
       });
+
+      if (error) {
+        Swal.fire("Error!", error.message, "error");
+        return;
+      }
 
       const students = importedData.map((student) => ({
         id: student.student_id,
@@ -168,10 +188,6 @@ const AssignStudents = () => {
         .from("student_record")
         .insert(students);
 
-      if (error) {
-        Swal.fire("Error!", error.message, "error");
-        return;
-      }
       if (err) {
         Swal.fire("Error!", err.message, "error");
         return;

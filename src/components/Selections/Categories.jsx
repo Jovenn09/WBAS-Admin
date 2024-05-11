@@ -67,11 +67,11 @@ const Categories = () => {
                 <button onClick={() => handleRoleClick("SecretaryLogin")}>
                   <FaUserCog /> Administrator
                 </button>
-                <button onClick={() => handleRoleClick("Login")}>
-                  <FaUser /> Student
-                </button>
                 <button onClick={() => handleRoleClick("TeacherLogin")}>
                   <FaChalkboardTeacher /> Instructor
+                </button>
+                <button onClick={() => handleRoleClick("Login")}>
+                  <FaUser /> Student
                 </button>
               </div>
             </form>

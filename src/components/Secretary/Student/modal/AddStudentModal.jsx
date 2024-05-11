@@ -16,6 +16,12 @@ const iconStyle = {
 
 const phinmaEmail = /^[a-zA-Z0-9._%+-]+\.up@phinmaed\.com$/;
 
+const defaultStudentIdObj = {
+  deptCode: "",
+  year: "",
+  sequence: "",
+};
+
 const AddStudentModal = ({ show, closeModal }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,27 +30,42 @@ const AddStudentModal = ({ show, closeModal }) => {
   const [address, setAddress] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [studentId, setStudentId] = useState("");
+  const [studentNumber, setStudentNumber] = useState(defaultStudentIdObj);
   const [showPassword, setShowPassword] = useState("");
-
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const [section, setSection] = useState([]);
 
   const [admissionStatus, setAdmissionStatus] = useState("regular");
 
-  const handleStudentSubmit = async () => {
-    if (
-      !section.length ||
-      !selectedSubjects.length ||
-      !name ||
-      !email ||
-      !course ||
-      !yearLevel ||
-      !password ||
-      !studentId
-    ) {
+  function onChangeStudentNumHandler(key, e) {
+    const value = e.target.value;
+
+    if (isNaN(Number(value))) return;
+
+    let regExp = /^\d{0,2}$/;
+
+    switch (key) {
+      case "deptCode":
+        break;
+      case "year":
+        regExp = /^\d{0,4}$/;
+        break;
+      case "sequence":
+        regExp = /^\d{0,5}$/;
+        break;
+    }
+
+    if (regExp.test(value)) {
+      setStudentNumber((prev) => ({ ...prev, [key]: value }));
+    }
+  }
+
+  const handleStudentSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!name || !email || !course || !yearLevel || !password) {
       return alert("Please fill all required fields");
     }
+
+    const { deptCode, year, sequence } = studentNumber;
 
     const studentData = {
       name: name,
@@ -54,7 +75,7 @@ const AddStudentModal = ({ show, closeModal }) => {
       address: address,
       contact_number: contactNumber,
       password: password,
-      student_id: studentId,
+      student_id: `${deptCode}-${year}-${sequence}`,
       admission_status: admissionStatus,
     };
 
@@ -131,10 +152,8 @@ const AddStudentModal = ({ show, closeModal }) => {
     setAddress("");
     setContactNumber("");
     setPassword("");
-    setStudentId("");
     setYearLevel("");
-    setSection([]);
-    setSelectedSubjects([]);
+    setStudentNumber(defaultStudentIdObj);
   }, [closeModal]);
 
   return (
@@ -142,16 +161,41 @@ const AddStudentModal = ({ show, closeModal }) => {
       <Modal.Header closeButton>
         <Modal.Title>Add Student Account</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Form>
+      <Form onSubmit={handleStudentSubmit}>
+        <Modal.Body>
           <Form.Group controlId="formStudentId">
             <Form.Label>Student Number</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter Student Number"
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
-            />
+            <div className="d-flex gap-2 w-100 align-items-center">
+              <Form.Control
+                value={studentNumber.deptCode}
+                className="w-25"
+                type="text"
+                placeholder="00"
+                onChange={onChangeStudentNumHandler.bind(this, "deptCode")}
+                pattern="\d{2}"
+                required
+              />
+              <span className="fw-bolder">-</span>
+              <Form.Control
+                className="w-50"
+                type="text"
+                value={studentNumber.year}
+                placeholder="0000"
+                onChange={onChangeStudentNumHandler.bind(this, "year")}
+                pattern="\d{4}"
+                required
+              />
+              <span className="fw-bolder">-</span>
+              <Form.Control
+                className="w-75"
+                type="text"
+                value={studentNumber.sequence}
+                placeholder="00000"
+                pattern="\d{5}"
+                onChange={onChangeStudentNumHandler.bind(this, "sequence")}
+                required
+              />
+            </div>
           </Form.Group>
           <Form.Group controlId="formName">
             <Form.Label>Full Name</Form.Label>
@@ -169,6 +213,7 @@ const AddStudentModal = ({ show, closeModal }) => {
               placeholder="Enter Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </Form.Group>
           <Form.Group controlId="formYearLevel">
@@ -176,6 +221,7 @@ const AddStudentModal = ({ show, closeModal }) => {
             <Form.Select
               value={yearLevel}
               onChange={(e) => setYearLevel(e.target.value)}
+              required
             >
               <option value="">Select Year Level</option>
               <option value="1st Year College">1st Year College</option>
@@ -191,6 +237,7 @@ const AddStudentModal = ({ show, closeModal }) => {
               placeholder="Enter Course"
               value={course}
               onChange={(e) => setCourse(e.target.value)}
+              required
             />
           </Form.Group>
           <Form.Group controlId="formAdmissionStatus">
@@ -198,6 +245,7 @@ const AddStudentModal = ({ show, closeModal }) => {
             <Form.Select
               value={admissionStatus}
               onChange={(e) => setAdmissionStatus(e.target.value)}
+              required
             >
               <option value="regular">Regular</option>
               <option value="irregular">Irregular</option>
@@ -210,6 +258,7 @@ const AddStudentModal = ({ show, closeModal }) => {
               placeholder="Enter Address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
+              required
             />
           </Form.Group>
 
@@ -220,6 +269,7 @@ const AddStudentModal = ({ show, closeModal }) => {
               placeholder="Enter Contact Number"
               value={contactNumber}
               onChange={(e) => setContactNumber(e.target.value)}
+              required
             />
           </Form.Group>
           <Form.Group style={{ position: "relative" }} controlId="formPassword">
@@ -229,6 +279,7 @@ const AddStudentModal = ({ show, closeModal }) => {
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
             {showPassword ? (
@@ -245,25 +296,25 @@ const AddStudentModal = ({ show, closeModal }) => {
               />
             )}
           </Form.Group>
-        </Form>
-        <Button
-          style={{ marginTop: "1rem" }}
-          onClick={() =>
-            setPassword(`${name.split(" ")[0]}-${randomstring.generate(5)}`)
-          }
-          disabled={!name}
-        >
-          Generate password
-        </Button>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary" onClick={handleStudentSubmit}>
-          Add Student Account
-        </Button>
-        <Button variant="secondary" onClick={closeModal}>
-          Close
-        </Button>
-      </Modal.Footer>
+          <Button
+            style={{ marginTop: "1rem" }}
+            onClick={() =>
+              setPassword(`${name.split(" ")[0]}-${randomstring.generate(5)}`)
+            }
+            disabled={!name}
+          >
+            Generate password
+          </Button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="submit" variant="primary">
+            Add Student Account
+          </Button>
+          <Button variant="secondary" onClick={closeModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Form>
     </Modal>
   );
 };

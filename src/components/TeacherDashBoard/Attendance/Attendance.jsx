@@ -20,6 +20,8 @@ const Attendance = () => {
 
   const [absentStudents, setAbsentStudents] = useState([]);
   const [studentAttendance, setStudentAttendance] = useState([]);
+  const [excuseStudents, setExcuseStudents] = useState([]);
+
   const [activePage, setActivePage] = useState(1);
 
   const itemsPerPage = 10;
@@ -131,10 +133,18 @@ const Attendance = () => {
       setAbsentStudents((prev) =>
         prev.includes(studentId) ? prev : [...prev, studentId]
       );
+      setExcuseStudents((prev) => prev.filter((id) => id !== studentId));
+      return;
+    } else if (status === "Excuse") {
+      setExcuseStudents((prev) =>
+        prev.includes(studentId) ? prev : [...prev, studentId]
+      );
+      setAbsentStudents((prev) => prev.filter((id) => id !== studentId));
       return;
     }
 
     setAbsentStudents((prev) => prev.filter((id) => id !== studentId));
+    setExcuseStudents((prev) => prev.filter((id) => id !== studentId));
   };
 
   const submitAttendance = async (e) => {
@@ -170,15 +180,28 @@ const Attendance = () => {
     //     : { ...data, date: selectedDate }
     // );
 
-    const attendanceRecord = studentAttendance
-      .filter((data) => absentStudents.includes(data.student_id))
-      .map((data) => ({
-        ...data,
-        attendance_status: "absent",
-        date: selectedDate,
-      }));
+    // const attendanceRecord = studentAttendance
+    //   .filter((data) => absentStudents.includes(data.student_id))
+    //   .map((data) => ({
+    //     ...data,
+    //     attendance_status: "absent",
+    //     date: selectedDate,
+    //   }));
 
-    console.log(attendanceRecord);
+    const attendanceRecord = studentAttendance.map((data) => {
+      const isAbsents = absentStudents.includes(data.student_id);
+      const isExcuse = excuseStudents.includes(data.student_id);
+
+      if (isAbsents) {
+        return { ...data, attendance_status: "absent", date: selectedDate };
+      } else if (isExcuse) {
+        return { ...data, attendance_status: "excuse", date: selectedDate };
+      }
+
+      return { ...data, date: selectedDate };
+    });
+
+    // console.log(attendanceRecord);
 
     if (attendanceRecord.length === 0) return;
 
@@ -219,8 +242,9 @@ const Attendance = () => {
   }
 
   useEffect(() => {
-    console.log(absentStudents);
-  }, [absentStudents]);
+    console.log("Absents: ", absentStudents);
+    console.log("Excuse: ", excuseStudents);
+  }, [absentStudents, excuseStudents]);
 
   return (
     <div className="attendance-container">
@@ -326,6 +350,17 @@ const Attendance = () => {
                             }
                           />
                           Absent
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            value="Absent"
+                            name={`attendance-${student.id}`}
+                            onChange={() =>
+                              handleAttendanceStatusChange(student.id, "Excuse")
+                            }
+                          />
+                          Excuse
                         </label>
                       </div>
                     </td>

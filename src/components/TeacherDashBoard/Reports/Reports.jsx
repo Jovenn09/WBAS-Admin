@@ -8,6 +8,8 @@ import XLSX from "xlsx";
 import Table from "react-bootstrap/Table";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import ShowSummary from "./modal/ShowSummary";
+import Button from "react-bootstrap/Button";
 
 const Reports = () => {
   const { user } = useContext(AuthContext);
@@ -29,6 +31,9 @@ const Reports = () => {
   const [activePage, setActivePage] = useState(1);
   const [recordCount, setRecordCount] = useState(0);
   const itemsPerPage = 10;
+
+  const [modalShow, setModalShow] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState({ name: "", id: "" });
 
   async function getSections() {
     const { data, error } = await supabase
@@ -115,6 +120,7 @@ const Reports = () => {
       .ilike("subject_id", `%${selectedClass}%`)
       .ilike("section_id", `%${selectedSection}%`)
       .eq("teacher_id", user.id)
+      .eq("attendance_status", "absent")
       .order("date", { ascending: true });
 
     const { data, error, count } = await query;
@@ -138,7 +144,24 @@ const Reports = () => {
       return newObj;
     });
 
-    setReportData(n);
+    const t = students.map((student) => {
+      const att = data.filter((record) => record.student_name === student);
+      const totalAbsence = att.filter(
+        (record) => record.attendance_status === "absent"
+      ).length;
+
+      console.log(att);
+
+      const newObj = {
+        student_name: student,
+        totalAbsence: totalAbsence,
+        student_id: att[0].student_id,
+      };
+
+      return newObj;
+    });
+
+    setReportData(t);
     setRecordCount(count);
   }
 
@@ -315,16 +338,8 @@ const Reports = () => {
                   {/* <th>Date</th> */}
                   <th>Student Number</th>
                   <th>Student Name</th>
-                  {/* <th>Subject</th> */}
-                  {headerDate.map((date) => (
-                    <th>
-                      {new Date(date).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </th>
-                  ))}
+                  <th>Total Absences</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -332,18 +347,21 @@ const Reports = () => {
                   <tr key={index}>
                     <td>{student.student_id}</td>
                     <td>{student.student_name}</td>
-                    {headerDate.map((date) => (
-                      <OverlayTrigger
-                        placement="bottom"
-                        overlay={
-                          <Tooltip id="button-tooltip">
-                            {student.student_name}
-                          </Tooltip>
-                        }
+                    <td>{student.totalAbsence}</td>
+                    <td>
+                      <Button
+                        variant="outline-primary"
+                        onClick={() => {
+                          setSelectedStudent({
+                            id: student.student_id,
+                            name: student.student_name,
+                          });
+                          setModalShow(true);
+                        }}
                       >
-                        <td>{student[date].toUpperCase()}</td>
-                      </OverlayTrigger>
-                    ))}
+                        More details
+                      </Button>
+                    </td>
                     {/* <td>
                       {attendance.subject_id} -{" "}
                       {attendance.subjects.subject_description}
@@ -386,6 +404,12 @@ const Reports = () => {
           </>
         )}
       </div>
+      <ShowSummary
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        studentId={selectedStudent.id}
+        studentName={selectedStudent.name}
+      />
     </div>
   );
 };

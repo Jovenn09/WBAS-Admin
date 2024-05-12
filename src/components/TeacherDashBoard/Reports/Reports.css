@@ -77,7 +77,7 @@
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-.attendance-report table {
+/* .attendance-report table {
   display: block;
   overflow-x: scroll;
   white-space: nowrap;
@@ -86,7 +86,7 @@
 .attendance-report table th,
 .attendance-report table td {
   padding: 1rem;
-}
+} */
 
 /* .attendance-report table th {
   width: 500px;

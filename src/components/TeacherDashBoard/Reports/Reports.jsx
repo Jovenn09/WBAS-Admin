@@ -28,9 +28,7 @@ const Reports = () => {
   const [sections, setSections] = useState([]);
   const [students, setStudents] = useState([]);
 
-  const [activePage, setActivePage] = useState(1);
   const [recordCount, setRecordCount] = useState(0);
-  const itemsPerPage = 10;
 
   const [modalShow, setModalShow] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState({ name: "", id: "" });
@@ -103,9 +101,6 @@ const Reports = () => {
   }, [selectedSection]);
 
   async function getAttendanceRecord() {
-    const start = (activePage - 1) * itemsPerPage;
-    const end = activePage * itemsPerPage - 1;
-
     const query = supabase
       .from("attendance")
       .select(
@@ -119,9 +114,14 @@ const Reports = () => {
       )
       .ilike("subject_id", `%${selectedClass}%`)
       .ilike("section_id", `%${selectedSection}%`)
+      .ilike("student_name", `%${searchTerm}%`)
       .eq("teacher_id", user.id)
-      .eq("attendance_status", "absent")
+      .in("attendance_status", ["absent", "excuse"])
       .order("date", { ascending: true });
+
+    if (startDate && endDate) {
+      query.lte("date", endDate).gte("date", startDate);
+    }
 
     const { data, error, count } = await query;
 
@@ -132,25 +132,13 @@ const Reports = () => {
       new Set(data.map((record) => record.student_name))
     ).sort();
 
-    const n = students.map((student) => {
-      const att = data.filter((record) => record.student_name === student);
-
-      const newObj = { student_name: student };
-      att.forEach((att) => {
-        newObj[att.date] = att.attendance_status;
-        newObj.student_id = att.student_id;
-      });
-
-      return newObj;
-    });
-
     const t = students.map((student) => {
       const att = data.filter((record) => record.student_name === student);
       const totalAbsence = att.filter(
-        (record) => record.attendance_status === "absent"
+        (record) =>
+          record.attendance_status === "absent" ||
+          record.attendance_status === "excuse"
       ).length;
-
-      console.log(att);
 
       const newObj = {
         student_name: student,
@@ -166,20 +154,14 @@ const Reports = () => {
   }
 
   useEffect(() => {
-    if (selectedClass && selectedSection) getAttendanceRecord();
-  }, [selectedClass, activePage, selectedSection, searchTerm]);
+    if (selectedClass && selectedSection) {
+      getAttendanceRecord();
+    }
+  }, [selectedClass, selectedSection, searchTerm, startDate, endDate]);
 
   const handlePrintReport = () => {
     window.print();
   };
-
-  const handlePageChange = (pageNumber) => {
-    setActivePage(pageNumber);
-  };
-
-  useEffect(() => {
-    console.log(recordCount);
-  }, [recordCount]);
 
   async function exportToCsv(recordsNum) {
     let query = supabase
@@ -188,10 +170,6 @@ const Reports = () => {
         `
       student_id,
       student_name,
-      subject_id,
-      subjects (
-        subject_description
-      ),
       attendance_status,
       date
       `
@@ -200,7 +178,7 @@ const Reports = () => {
       .ilike("subject_id", `%${selectedClass}%`)
       .ilike("section_id", `%${selectedSection}%`)
       .ilike("student_name", `%${searchTerm}%`)
-      .order("date", { ascending: false });
+      .order("date", { ascending: true });
 
     if (startDate && endDate) {
       query.lte("date", endDate).gte("date", startDate);
@@ -212,36 +190,69 @@ const Reports = () => {
       return alert("something went wrong");
     }
 
-    const rows = data.map((obj) => ({
-      date: obj.date,
-      studentName: obj.student_name,
-      subject: `${obj.subject_id} - ${obj.subjects.subject_description}`,
-      status: obj.attendance_status,
-    }));
+    const date = Array.from(new Set(data.map((record) => record.date)));
 
-    console.log(rows);
+    console.log(date);
 
-    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const students = Array.from(
+      new Set(data.map((record) => record.student_name))
+    ).sort();
+
+    const n = students.map((student) => {
+      const att = data.filter((record) => record.student_name === student);
+
+      const newObj = {};
+      att.forEach((r) => {
+        newObj.student_id = r.student_id;
+        newObj.student_name = student;
+        newObj[r.date] = r.attendance_status.charAt(0).toUpperCase();
+      });
+
+      const numberOfAbsence = att.filter(
+        (record) => record.attendance_status === "absent"
+      );
+
+      newObj.totalAbsence = `${numberOfAbsence.length}`;
+
+      return newObj;
+    });
+
+    console.log(n);
+
+    // const rows = data.map((obj) => ({
+    //   date: obj.date,
+    //   studentName: obj.student_name,
+    //   subject: `${obj.subject_id} - ${obj.subjects.subject_description}`,
+    //   status: obj.attendance_status,
+    // }));
+
+    // console.log(rows);
+
+    const worksheet = XLSX.utils.json_to_sheet(n);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Dates");
 
-    const headers = XLSX.utils.sheet_add_aoa(
-      worksheet,
-      [["Date", "Student Name", "Subject", "Status"]],
-      {
-        origin: "A1",
-      }
-    );
+    const arrHeaders = ["Student Number", "Student Name"].concat(date);
+    arrHeaders.push("Total Abscences");
 
-    const columns_width = ["date", "studentName", "subject", "status"].map(
-      (data) => {
-        const max_width = rows.reduce(
-          (w, r) => Math.max(w, r[data].length),
-          10
-        );
-        return { wch: max_width + 2 };
-      }
-    );
+    console.log(arrHeaders);
+
+    const headers = XLSX.utils.sheet_add_aoa(worksheet, [arrHeaders], {
+      origin: "A1",
+    });
+
+    const arrColumns = ["student_id", "student_name"].concat(date);
+    arrColumns.push("totalAbsence");
+
+    const columns_width = arrColumns.map((data) => {
+      const max_width = n.reduce((w, r) => {
+        console.log(data);
+        // console.log(r[data]);
+        return Math.max(w, r[data].length);
+      }, 10);
+
+      return { wch: max_width + 2 };
+    });
     worksheet["!cols"] = columns_width;
 
     XLSX.writeFile(workbook, "Attendance_Record.xlsx", { compression: true });
@@ -251,30 +262,6 @@ const Reports = () => {
     <div className="report-container">
       <h1>Attendance Report</h1>
       <div className="report-controls">
-        {/* <div className="date-range">
-          <label htmlFor="startDate">Start Date:</label>
-          <input
-            type="date"
-            id="startDate"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-          <label htmlFor="endDate">End Date:</label>
-          <input
-            type="date"
-            id="endDate"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-          <button
-            onClick={() => {
-              setStartDate("");
-              setEndDate("");
-            }}
-          >
-            Clear Filter
-          </button>
-        </div> */}
         <div className="class-filter">
           <label htmlFor="classFilter" className="small-label">
             Subject:
@@ -310,6 +297,32 @@ const Reports = () => {
               </option>
             ))}
           </select>
+        </div>
+        <br />
+        <div className="date-range">
+          <label htmlFor="startDate">Start Date:</label>
+          <input
+            type="date"
+            id="startDate"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <label htmlFor="endDate">End Date:</label>
+          <input
+            type="date"
+            id="endDate"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+          <button
+            className="mx-2 mb-2"
+            onClick={() => {
+              setStartDate("");
+              setEndDate("");
+            }}
+          >
+            Clear Filter
+          </button>
         </div>
         <br />
         <input

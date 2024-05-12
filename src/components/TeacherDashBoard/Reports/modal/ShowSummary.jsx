@@ -30,15 +30,13 @@ export default function ShowSummary({ show, onHide, studentId, studentName }) {
       });
     }
 
-    console.log(data);
     setLoading(false);
     setData(data);
   }
 
   useEffect(() => {
     getStudentAtttendance();
-    console.log("hello");
-  }, []);
+  }, [show]);
 
   return (
     <Modal
@@ -56,7 +54,15 @@ export default function ShowSummary({ show, onHide, studentId, studentName }) {
         {loading && <Spinner animation="border" />}
         {data.map((item) => (
           <p key={item.date}>
-            {item.date} - {item.attendance_status}
+            {new Date(item.date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}{" "}
+            -{" "}
+            <strong style={{ textTransform: "capitalize" }}>
+              {item.attendance_status}
+            </strong>
           </p>
         ))}
       </Modal.Body>

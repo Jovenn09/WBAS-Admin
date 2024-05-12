@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import { FaTrash, FaPlus, FaEdit } from "react-icons/fa";
 import { Pagination } from "react-bootstrap";
+import Table from "react-bootstrap/Table";
 
 // components
 import AddNewSectionModal from "./modal/AddNewSectionModal";
@@ -114,7 +115,7 @@ export default function Section() {
             </button>
           </div>
         </div>
-        <table className="table table-bordered">
+        <Table responsive className="table table-bordered">
           <thead className="thead-dark">
             <tr>
               <th>Section Code</th>
@@ -150,7 +151,7 @@ export default function Section() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
         {sectionData.length === 0 && (
           <div className="no-accounts-message">No sections found.</div>
         )}

@@ -307,7 +307,7 @@ const AssignStudents = () => {
               required
             />
           </label>
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flex gap-2 align-items-center flex-wrap mb-5">
             <Form.Group
               style={{ width: "fit-content" }}
               controlId="formFile"

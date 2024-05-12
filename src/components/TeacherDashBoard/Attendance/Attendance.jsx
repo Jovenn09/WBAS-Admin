@@ -12,6 +12,7 @@ const Attendance = () => {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedDate, setSelectedDate] = useState(getCurrentDate());
   const [selectedSection, setSelectedSection] = useState("");
+  const [selectedSem, setSelectedSem] = useState("first semester");
   const [totalStudents, setTotalStudents] = useState(0);
 
   const [students, setStudents] = useState([]);
@@ -37,7 +38,8 @@ const Attendance = () => {
       )
       `
       )
-      .eq("teacher_id", user.id);
+      .eq("teacher_id", user.id)
+      .eq("semester", selectedSem);
 
     const subjects = data.filter(
       (item, index, self) =>
@@ -76,7 +78,7 @@ const Attendance = () => {
 
   useEffect(() => {
     getHandleClass();
-  }, []);
+  }, [selectedSem]);
 
   async function showStudents() {
     const students = await supabase
@@ -98,6 +100,7 @@ const Attendance = () => {
       section_id: selectedSection,
       date: selectedDate,
       attendance_status: "present",
+      semester: selectedSem,
     }));
 
     setStudentAttendance(defaultAttendance);
@@ -252,6 +255,22 @@ const Attendance = () => {
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="filter-section">
           <label>
+            Sem:
+            <select
+              value={selectedSem}
+              onChange={(e) => {
+                setSelectedSem(e.target.value);
+              }}
+            >
+              <option defaultChecked value={"first semester"}>
+                First Semester
+              </option>
+              <option value={"second semester"}>Second Semester</option>
+              <option value={"summer"}>Summer</option>
+            </select>
+          </label>
+          &nbsp;&nbsp;
+          <label>
             Class:
             <select
               value={selectedClass}
@@ -294,7 +313,7 @@ const Attendance = () => {
             />
           </label>
           <button
-            className="show-student"
+            className="show-student mx-3"
             onClick={showStudents}
             disabled={!selectedClass || !selectedSection}
           >

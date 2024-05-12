@@ -6,6 +6,7 @@ import { FaTrash } from "react-icons/fa";
 import Select from "react-select";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import Swal from "sweetalert2";
+import Table from "react-bootstrap/Table";
 
 const ListStudents = () => {
   const [filters, setFilters] = useState({
@@ -261,7 +262,7 @@ const ListStudents = () => {
         </label>
       </div>
 
-      <table className="table">
+      <Table responsive className="table">
         <thead>
           <tr>
             <th>Instructor</th>
@@ -301,7 +302,7 @@ const ListStudents = () => {
             );
           })}
         </tbody>
-      </table>
+      </Table>
 
       <Pagination>
         <Pagination.Prev

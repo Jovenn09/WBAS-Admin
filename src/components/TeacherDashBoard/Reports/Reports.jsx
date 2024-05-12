@@ -20,6 +20,7 @@ const Reports = () => {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSem, setSelectedSem] = useState("first semester");
 
   const [reportData, setReportData] = useState([]);
   const [headerDate, setHeaderDate] = useState([]);
@@ -60,7 +61,8 @@ const Reports = () => {
       )
       `
       )
-      .eq("teacher_id", user.id);
+      .eq("teacher_id", user.id)
+      .eq("semester", selectedSem);
 
     const subjects = data.filter(
       (item, index, self) =>
@@ -72,7 +74,7 @@ const Reports = () => {
 
   useEffect(() => {
     getHandleSubjects();
-  }, []);
+  }, [selectedSem]);
 
   useEffect(() => {
     if (selectedClass !== "") {
@@ -156,6 +158,8 @@ const Reports = () => {
   useEffect(() => {
     if (selectedClass && selectedSection) {
       getAttendanceRecord();
+    } else {
+      setReportData([]);
     }
   }, [selectedClass, selectedSection, searchTerm, startDate, endDate]);
 
@@ -264,6 +268,24 @@ const Reports = () => {
       <div className="report-controls">
         <div className="class-filter">
           <label htmlFor="classFilter" className="small-label">
+            Semester:
+          </label>
+          <select
+            id="classFilter"
+            value={selectedSem}
+            onChange={(e) => {
+              setSelectedSem(e.target.value);
+            }}
+            className="small-select"
+          >
+            <option defaultChecked value={"first semester"}>
+              First Semester
+            </option>
+            <option value={"second semester"}>Second Semester</option>
+            <option value={"summer"}>Summer</option>
+          </select>
+          &nbsp;
+          <label htmlFor="classFilter" className="small-label">
             Subject:
           </label>
           <select
@@ -272,7 +294,7 @@ const Reports = () => {
             onChange={(e) => setSelectedClass(e.target.value)}
             className="small-select"
           >
-            <option value="">All</option>
+            <option value="">Choose a Subject</option>
             {subjects.map((data) => (
               <option key={data.subject_id} value={data.subject_id}>
                 {data.subject_id} - {data.subjects.subject_description}
@@ -290,7 +312,7 @@ const Reports = () => {
             className="small-select"
             disabled={!selectedClass}
           >
-            <option value="">Select section</option>
+            <option value="">Select a Section</option>
             {sections.map((data) => (
               <option key={data.section_id} value={data.section_id}>
                 {data.section_id}
@@ -333,12 +355,19 @@ const Reports = () => {
         />
         <br />
         <br />
-        <button className="print-button" onClick={handlePrintReport}>
-          Print Report
-        </button>
-        <button className="print-button" onClick={exportToCsv}>
-          Download CSV
-        </button>
+        <div className="d-flex gap-2 flex-wrap">
+          <Button variant="primary" onClick={handlePrintReport}>
+            Print Report
+          </Button>
+          <br />
+          <Button
+            variant="primary"
+            onClick={exportToCsv}
+            disabled={reportData.length === 0}
+          >
+            Download CSV
+          </Button>
+        </div>
       </div>
       <div className="attendance-report">
         {reportData.length === 0 ? (

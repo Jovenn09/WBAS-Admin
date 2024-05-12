@@ -5,6 +5,7 @@ import { FaTrash, FaPlus, FaEdit } from "react-icons/fa";
 import { Pagination } from "react-bootstrap";
 import { FaUserAltSlash } from "react-icons/fa";
 import { FaUserCheck } from "react-icons/fa";
+import Table from "react-bootstrap/Table";
 
 // components
 import EditTeacherModal from "./modal/EditTeacher";
@@ -163,7 +164,7 @@ export default function TeacherAccount() {
             </button>
           </div>
         </div>
-        <table className="table table-bordered">
+        <Table responsive className="table table-bordered">
           <thead className="thead-dark">
             <tr>
               <th>Name</th>
@@ -234,7 +235,7 @@ export default function TeacherAccount() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
         {teachersData.length === 0 && (
           <div className="no-accounts-message">No user accounts found.</div>
         )}

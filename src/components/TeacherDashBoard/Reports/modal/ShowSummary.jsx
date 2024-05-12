@@ -45,7 +45,7 @@ export default function ShowSummary({ show, onHide, studentId, studentName }) {
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
-      <Modal.Header closeButton>
+      <Modal.Header>
         <Modal.Title id="contained-modal-title-vcenter">
           {studentName}
         </Modal.Title>

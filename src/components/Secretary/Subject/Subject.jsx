@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import { FaTrash, FaPlus, FaEdit } from "react-icons/fa";
 import { Pagination } from "react-bootstrap";
+import Table from "react-bootstrap/Table";
 
 // components
 import AddNewSubjectModal from "./modal/AddNewSubjectModal";
@@ -125,7 +126,7 @@ export default function Subject() {
             </button>
           </div>
         </div>
-        <table className="table table-bordered">
+        <Table responsive className="table table-bordered">
           <thead className="thead-dark">
             <tr>
               <th>Subject Code</th>
@@ -163,7 +164,7 @@ export default function Subject() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
         {subjectsData.length === 0 && (
           <div className="no-accounts-message">No subjects found.</div>
         )}

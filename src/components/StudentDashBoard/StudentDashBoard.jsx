@@ -120,12 +120,12 @@ const StudentDashboard = () => {
     subjects (
       subject_description
     ),
-    date
+    date,
+    attendance_status
     `
       )
       .ilike("subject_id", `%${selectedSubject}%`)
       .eq("student_id", user.student_id)
-      .eq("attendance_status", "absent")
       .order("date", { ascending: false })
       .range(start, end);
 
@@ -139,6 +139,7 @@ const StudentDashboard = () => {
       (item, index, self) =>
         index === self.findIndex((t) => t.subject_id === item.subject_id)
     );
+
     setSubjects(uniqueData);
     setAttendanceData(data);
     console.log(data);
@@ -189,7 +190,8 @@ const StudentDashboard = () => {
           .from("attendance")
           .select("*", { count: "exact", head: true })
           .eq("subject_id", item.subject_id)
-          .eq("student_id", user.student_id);
+          .eq("student_id", user.student_id)
+          .eq("attendance_status", "absent");
 
         return {
           count,
@@ -316,16 +318,24 @@ const StudentDashboard = () => {
                 <tr>
                   <td colSpan="3">No Attendance Yet for {selectedDate}</td>
                 </tr>
-              ) : totalAbsents === 0 ? (
-                <tr>
-                  <td colSpan="3">No Attendance Found.</td>
-                </tr>
               ) : (
                 attendanceData.map((record, index) => (
                   <tr key={record.subject_id + record.date + index}>
                     <td>{`${record.subject_id} - ${record.subjects.subject_description}`}</td>
                     <td>{new Date(record.date).toLocaleDateString("en-GB")}</td>
-                    <td className={"red"}>Absent</td>
+                    <td
+                      style={{
+                        textTransform: "capitalize",
+                        color:
+                          record.attendance_status === "present"
+                            ? "green"
+                            : record.attendance_status === "excuse"
+                            ? "orange"
+                            : "red",
+                      }}
+                    >
+                      {record.attendance_status}
+                    </td>
                   </tr>
                 ))
               )}
@@ -362,7 +372,7 @@ const StudentDashboard = () => {
           <p>Total Absences: {totalAbsents}</p>
           <hr />
           {subjectTotalAttendance.map(({ count, name }) => (
-            <div>
+            <div key={name + count}>
               <span>
                 {name}:&nbsp;&nbsp;<strong>{count}</strong>
               </span>

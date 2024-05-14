@@ -21,6 +21,7 @@ export function AuthContextProvider({ children }) {
           .from("students")
           .select("student_id")
           .eq("uuid", data.user.id);
+
         setUser({ student_id: students[0].student_id, ...data.user });
       } else {
         setUser(data.user);
@@ -28,6 +29,7 @@ export function AuthContextProvider({ children }) {
 
       setLoading(false);
     };
+
     getUser();
   }, []);
 

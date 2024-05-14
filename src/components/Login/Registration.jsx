@@ -8,6 +8,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { MdEmail } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
+import VerifyEmail from "./VerifyEmail";
 
 const defaultStudentIdObj = {
   deptCode: "",
@@ -18,6 +19,7 @@ const defaultStudentIdObj = {
 const phinmaEmail = /^[a-zA-Z0-9._%+-]+\.up@phinmaed\.com$/;
 
 const Registration = () => {
+  const [showModal, setShowModal] = useState(false);
   const { setUser } = useContext(AuthContext);
 
   const [state, setState] = useState({
@@ -31,9 +33,9 @@ const Registration = () => {
   });
 
   const [studentNumber, setStudentNumber] = useState(defaultStudentIdObj);
-  const [yearLevel, setYearLevel] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [finalData, setFinalData] = useState({});
 
   const handleInputChange = (event) => {
     let { name, value } = event.target;
@@ -100,19 +102,11 @@ const Registration = () => {
         email,
         password,
         options: {
-          emailRedirectTo:
-            "https://attendance-system-cite.vercel.app/studentdashboard",
           data: { access: "student" },
         },
       });
 
       if (error) throw new Error(error.message);
-
-      if (data.user.user_metadata?.access !== "student") {
-        const message = updateError.message ?? "";
-        await supabase.auth.signOut();
-        throw new Error("Can't sign you in", message);
-      }
 
       const { error: insertError } = await supabase.from("students").insert([
         {
@@ -128,21 +122,12 @@ const Registration = () => {
 
       if (insertError) throw new Error(insertError.message);
 
-      let { data: students } = await supabase
-        .from("students")
-        .select("student_id")
-        .eq("uuid", data.user.id);
-
-      console.log(students);
-
-      setUser({ student_id: students[0].student_id, ...data.user });
+      setShowModal(true);
     } catch (error) {
       const message = error?.message ?? "Something went wrong";
       Swal.fire({
         icon: "warning",
         title: message,
-        timer: 1500,
-        timerProgressBar: true,
         showClass: {
           popup: "animate__animated animate__fadeInDown",
         },
@@ -353,6 +338,14 @@ const Registration = () => {
 
             <button type="submit">Register</button>
           </form>
+          <VerifyEmail
+            showModal={showModal}
+            setShowModal={setShowModal}
+            email={state.email}
+            metadata={{
+              studentId: `${studentNumber.deptCode}-${studentNumber.year}-${studentNumber.sequence}`,
+            }}
+          />
         </div>
       </div>
       <Footer />

@@ -25,6 +25,7 @@ import TeacherAccount from "./components/Secretary/TeacherAccount/TeacherAccount
 import Subject from "./components/Secretary/Subject/Subject";
 import Student from "./components/Secretary/Student/Student";
 import Section from "./components/Secretary/Section/Section";
+import Registration from "./components/Login/Registration";
 
 const PrivateRoute = ({ component: Component, access, ...rest }) => {
   return (
@@ -112,6 +113,12 @@ function App() {
             access={user?.user_metadata?.access}
             exact
             component={Login}
+          />
+          <PublicRoute
+            path="/registration"
+            access={user?.user_metadata?.access}
+            exact
+            component={Registration}
           />
           <PrivateRoute
             path="/studentdashboard"

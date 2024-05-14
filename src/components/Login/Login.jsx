@@ -7,9 +7,11 @@ import Swal from "sweetalert2";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import supabase from "../../config/supabaseClient";
 import { AuthContext } from "../../context/AuthContext";
+import { useHistory } from "react-router-dom";
 
 const Login = () => {
   const { setUser } = useContext(AuthContext);
+  const history = useHistory();
 
   const [state, setState] = useState({
     email: "",
@@ -130,6 +132,17 @@ const Login = () => {
             <Button variant="link" onClick={handleShowForgotPasswordModal}>
               Forgot Password?
             </Button>
+            <div className="d-flex justify-content-center align-items-center">
+              <span>Don't have an account?</span>
+              <Button
+                className="p-0"
+                style={{ width: "fit-content" }}
+                variant="link"
+                onClick={() => history.push("/registration")}
+              >
+                Register
+              </Button>
+            </div>
           </form>
         </div>
       </div>

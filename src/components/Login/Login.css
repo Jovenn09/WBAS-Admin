@@ -57,13 +57,10 @@
 }
 .login-form {
   background-color: #fff;
-  padding: 2px;
-  padding-right: 10px;
   border-radius: 30px;
   max-width: 400px;
   width: 100%;
   text-align: center;
-  overflow: hidden;
   margin-top: 10px;
 }
 

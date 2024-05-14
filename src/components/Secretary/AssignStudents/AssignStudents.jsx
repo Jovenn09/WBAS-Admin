@@ -8,6 +8,24 @@ import { supabaseAdmin } from "../../../config/supabaseClient";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
+function generateSchoolYearsArray() {
+  const currentYear = new Date().getFullYear();
+  const startYear = 2022;
+  const yearsArray = [];
+
+  for (let year = startYear; year <= currentYear; year++) {
+    const nextYear = year + 1;
+    const schoolYear = `${year.toString().substring(2)}${nextYear
+      .toString()
+      .substring(2)}`;
+    yearsArray.push({ value: schoolYear, label: schoolYear });
+  }
+
+  yearsArray.sort((a, b) => b.value.localeCompare(a.value));
+
+  return yearsArray;
+}
+
 function MyVerticallyCenteredModal(props) {
   return (
     <Modal
@@ -33,29 +51,13 @@ function MyVerticallyCenteredModal(props) {
   );
 }
 
-function getSchoolYear() {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
-
-  const startMonth = 6;
-  const endMonth = 2;
-
-  if (currentMonth >= startMonth && currentMonth <= endMonth) {
-    const nextYearShort = String(currentYear + 1).slice(-2);
-    return `${String(currentYear).slice(-2)}${nextYearShort}`;
-  } else {
-    const lastYearShort = String(currentYear - 1).slice(-2);
-    return `${lastYearShort}${String(currentYear).slice(-2)}`;
-  }
-}
-
 const AssignStudents = () => {
   const [formData, setFormData] = useState({
     teacher: "",
     subject: "",
     section: "",
     semester: "",
+    schoolYear: "",
   });
 
   const [teachers, setTeachers] = useState([]);
@@ -127,11 +129,25 @@ const AssignStudents = () => {
     }));
   };
 
+  const handleSchoolYearChange = (selectedOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      schoolYear: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const { teacher, subject, section, semester } = formData;
-    if (!teacher || !subject || !section || !semester || !importedData.length) {
+    const { teacher, subject, section, semester, schoolYear } = formData;
+    if (
+      !teacher ||
+      !subject ||
+      !section ||
+      !semester ||
+      !importedData.length ||
+      !schoolYear
+    ) {
       return Swal.fire(
         "Please fill all fields and select at least one student",
         "",
@@ -168,7 +184,7 @@ const AssignStudents = () => {
         teacher_id: teacher,
         subject_id: subject,
         section_id: section,
-        school_year: getSchoolYear(),
+        school_year: schoolYear,
         semester,
       });
 
@@ -192,6 +208,7 @@ const AssignStudents = () => {
         Swal.fire("Error!", err.message, "error");
         return;
       }
+
       Swal.fire("Submitted!", "Students successfully added!.", "success");
     }
   };
@@ -304,6 +321,17 @@ const AssignStudents = () => {
                 { value: "second semester", label: "Second Semester" },
                 { value: "summer", label: "Summer" },
               ]}
+              required
+            />
+          </label>
+          <label className="assign-students-label" style={{ width: "200px" }}>
+            Year:
+            <Select
+              value={sections.find(
+                (section) => section.value === formData.schoolYear
+              )}
+              onChange={handleSchoolYearChange}
+              options={generateSchoolYearsArray()}
               required
             />
           </label>

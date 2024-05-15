@@ -66,6 +66,25 @@ const AddNewUserModal = ({ show, closeModal }) => {
       text: "Account created successfully.",
     });
     closeModal();
+
+    const sendEmail = await fetch(
+      "https://wbas-server.onrender.com/send-email",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      }
+    );
+
+    const json = await sendEmail.json();
+
+    if (sendEmail.ok) {
+      console.log("Email sent successfully!", json);
+    } else {
+      console.error("Failed to send email:", json);
+    }
   };
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import { MdEmail } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import VerifyEmail from "./VerifyEmail";
-
+import Spinner from "react-bootstrap/Spinner";
 const defaultStudentIdObj = {
   deptCode: "",
   year: "",
@@ -36,6 +36,7 @@ const Registration = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [finalData, setFinalData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (event) => {
     let { name, value } = event.target;
@@ -86,6 +87,7 @@ const Registration = () => {
     } = state;
 
     try {
+      setLoading(true);
       if (!phinmaEmail.test(email)) {
         Swal.fire({
           icon: "error",
@@ -136,6 +138,7 @@ const Registration = () => {
         },
       });
     }
+    setLoading(false);
   };
 
   return (
@@ -336,7 +339,9 @@ const Registration = () => {
               </div>
             </div>
 
-            <button type="submit">Register</button>
+            <button type="submit" disabled={loading}>
+              {loading ? <Spinner animation="border" size="sm" /> : "Register"}
+            </button>
           </form>
           <VerifyEmail
             showModal={showModal}

@@ -21,7 +21,9 @@ const ForgotPasswordModal = ({ show, handleClose }) => {
         throw new Error("Invalid Email");
       }
 
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://redirect-ats.vercel.app",
+      });
       if (error) throw new Error(error.message);
 
       setEmail("");

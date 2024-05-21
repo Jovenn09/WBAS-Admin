@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { utils, read } from "xlsx";
 import "./AssignStudents.css";
 import Form from "react-bootstrap/Form";
@@ -7,6 +7,8 @@ import Select from "react-select";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import { FaTrash } from "react-icons/fa";
+import AddStudentModal from "./modal/AddStudentModal";
 
 function generateSchoolYearsArray() {
   const currentYear = new Date().getFullYear();
@@ -51,22 +53,27 @@ function MyVerticallyCenteredModal(props) {
   );
 }
 
+const defaultObj = {
+  teacher: "",
+  subject: "",
+  section: "",
+  semester: "",
+  schoolYear: "",
+};
+
 const AssignStudents = () => {
-  const [formData, setFormData] = useState({
-    teacher: "",
-    subject: "",
-    section: "",
-    semester: "",
-    schoolYear: "",
-  });
+  const [formData, setFormData] = useState(defaultObj);
 
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [sections, setSections] = useState([]);
 
   const [modalShow, setModalShow] = React.useState(false);
+  const [showAddStudentModal, setShowAddStudentModal] = React.useState(false);
 
   const [importedData, setImportedData] = useState([]);
+
+  const fileInputRef = useRef(null);
 
   const fetchTeachers = async () => {
     let { data: teachers, error } = await supabaseAdmin
@@ -210,14 +217,18 @@ const AssignStudents = () => {
       }
 
       Swal.fire("Submitted!", "Students successfully added!.", "success");
+      window.location.reload();
     }
   };
 
+  const [hasImport, setHasImport] = useState(false);
   async function onImportHandler(e) {
     const file = e.target.files[0];
 
+    console.log(file);
     if (!file) return;
 
+    setHasImport(true);
     const reader = new FileReader();
 
     reader.onload = (evt) => {
@@ -256,7 +267,8 @@ const AssignStudents = () => {
       });
 
       console.log(dataObjects);
-      setImportedData(dataObjects);
+
+      setImportedData((prev) => prev.concat(dataObjects));
     };
 
     reader.readAsArrayBuffer(file);
@@ -264,7 +276,7 @@ const AssignStudents = () => {
 
   return (
     <div className="assign-students-container">
-      <h2>Assign Students</h2>
+      <h2 className="mb-5">Assign Students</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label className="assign-students-label" style={{ width: "200px" }}>
@@ -343,10 +355,12 @@ const AssignStudents = () => {
             >
               <Form.Label>Import</Form.Label>
               <Form.Control
+                ref={fileInputRef}
                 type="file"
                 accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 onChange={onImportHandler}
                 required
+                disabled={hasImport}
               />
             </Form.Group>
             <button
@@ -362,29 +376,79 @@ const AssignStudents = () => {
             </button>
           </div>
         </div>
-        <button type="submit">Submit</button>
-      </form>
-      <table className="table table-bordered">
-        <thead className="thead-dark">
-          <tr>
-            <th></th>
-            <th>Student ID</th>
-            <th>Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {importedData.map((student, index) => (
-            <tr key={student.student_id}>
-              <td>{index + 1}</td>
-              <td>{student.student_id}</td>
-              <td>{student.name}</td>
+        <div className="d-flex justify-content-between align-items-center">
+          {importedData.length !== 0 && (
+            <p>
+              Students: <strong>{importedData.length} </strong>
+            </p>
+          )}
+          <button
+            type="button"
+            className="ms-auto"
+            onClick={() => setShowAddStudentModal(true)}
+          >
+            Add Student
+          </button>
+        </div>
+        <table className="table table-bordered">
+          <thead className="thead-dark">
+            <tr>
+              <th></th>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <MyVerticallyCenteredModal
-        show={modalShow}
-        onHide={() => setModalShow(false)}
+          </thead>
+          <tbody>
+            {importedData.map((student, index) => (
+              <tr key={student.student_id}>
+                <td>{index + 1}</td>
+                <td>{student.student_id}</td>
+                <td>{student.name}</td>
+                <td>
+                  <Button
+                    variant="danger"
+                    onClick={() =>
+                      setImportedData((prev) =>
+                        prev.filter(
+                          ({ student_id }) => student_id !== student.student_id
+                        )
+                      )
+                    }
+                  >
+                    <FaTrash />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <MyVerticallyCenteredModal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+        />
+        <div className="d-flex justify-content-between">
+          <button type="submit">Assign</button>
+          <Button
+            type="button"
+            variant="danger"
+            onClick={() => {
+              if (fileInputRef.current) {
+                fileInputRef.current.value = ""; // Clear the file input value
+              }
+              setImportedData([]);
+              setHasImport(false);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+      </form>
+      <AddStudentModal
+        show={showAddStudentModal}
+        closeModal={() => setShowAddStudentModal(false)}
+        setData={setImportedData}
+        data={importedData}
       />
     </div>
   );

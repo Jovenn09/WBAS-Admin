@@ -51,7 +51,14 @@ const AddNewUserModal = ({ show, closeModal }) => {
         user_metadata: { access: "instructor" },
       });
 
-    if (authError) return console.error("Error adding teacher account");
+    if (authError) {
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: authError.message,
+      });
+      return;
+    }
 
     delete userData.password;
     const { error: insertError } = await supabaseAdmin

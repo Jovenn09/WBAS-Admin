@@ -8,6 +8,7 @@ import ForgotPasswordModal from "./ForgotPasswordModal";
 import supabase from "../../config/supabaseClient";
 import { AuthContext } from "../../context/AuthContext";
 import { useHistory } from "react-router-dom";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 const Login = () => {
   const { setUser } = useContext(AuthContext);
@@ -98,11 +99,26 @@ const Login = () => {
             className="login-image"
           />
           <form onSubmit={handleSubmit} className="login-form">
-            <h2>
+            <div>
               {" "}
-              COLLEGE OF INFORMATION TECHNOLOGY <br />
-              <br /> Attendance System
-            </h2>
+              <img
+                src="/images/CITE.png"
+                alt="cite logo "
+                style={{ width: 50, height: 50 }}
+              />
+              <h2>
+                {" "}
+                COLLEGE OF INFORMATION TECHNOLOGY <br />
+                <br /> Attendance System
+              </h2>
+            </div>
+            <div className="d-flex px-2">
+              <IoIosArrowRoundBack
+                className="back-arrow"
+                onClick={() => history.push("/")}
+              />
+            </div>
+
             <div className="form-group">
               <label>
                 <FaUser /> Email

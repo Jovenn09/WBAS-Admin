@@ -26,6 +26,7 @@ import Subject from "./components/Secretary/Subject/Subject";
 import Student from "./components/Secretary/Student/Student";
 import Section from "./components/Secretary/Section/Section";
 import Registration from "./components/Login/Registration";
+import Dashboard from "./components/Secretary/Dashboard/Dashboard";
 
 const PrivateRoute = ({ component: Component, access, ...rest }) => {
   return (
@@ -49,7 +50,7 @@ const PublicRoute = ({ component: Component, access, ...rest }) => {
       redirect = "/teacher-sidebar/dashboard";
       break;
     case "admin":
-      redirect = "/admin-sidebar/assign-students";
+      redirect = "/admin-sidebar/dashboard";
       break;
   }
 
@@ -169,12 +170,17 @@ function App() {
         <Switch>
           <PrivateRoute
             access={admin}
+            path="/admin-sidebar/dashboard"
+            component={Dashboard}
+          />
+          <PrivateRoute
+            access={admin}
             path="/admin-sidebar/assign-students"
             component={AssignStudents}
           />
           <PrivateRoute
             access={admin}
-            path="/admin-sidebar/list-of-students"
+            path="/admin-sidebar/instructor"
             component={ListStudents}
           />
           <PrivateRoute
@@ -184,17 +190,12 @@ function App() {
           />
           <PrivateRoute
             access={admin}
-            path="/admin-sidebar/subjects"
-            component={Subject}
-          />
-          <PrivateRoute
-            access={admin}
             path="/admin-sidebar/student-account"
             component={Student}
           />
           <PrivateRoute
             access={admin}
-            path="/admin-sidebar/section-management"
+            path="/admin-sidebar/class"
             component={Section}
           />
         </Switch>

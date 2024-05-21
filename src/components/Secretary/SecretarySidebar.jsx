@@ -16,6 +16,7 @@ import Swal from "sweetalert2";
 import supabase from "../../config/supabaseClient";
 import { AuthContext } from "../../context/AuthContext";
 import { MdSupervisorAccount } from "react-icons/md";
+import { MdDashboard } from "react-icons/md";
 
 const SecretarySidebar = () => {
   const { setUser } = useContext(AuthContext);
@@ -79,6 +80,24 @@ const SecretarySidebar = () => {
         )}
         <ul>
           <li>
+            <NavLink to="/admin-sidebar/dashboard" activeClassName="active">
+              <MdDashboard style={iconStyle} />
+              Dashboard
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/admin-sidebar/instructor" activeClassName="active">
+              <FaBook style={iconStyle} />
+              Instructor
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/admin-sidebar/class" activeClassName="active">
+              <SiGoogleclassroom style={iconStyle} />
+              Class
+            </NavLink>
+          </li>
+          {/* <li>
             <NavLink
               to="/admin-sidebar/assign-students"
               activeClassName="active"
@@ -86,31 +105,7 @@ const SecretarySidebar = () => {
               <FaUserGraduate style={iconStyle} />
               Assign Students
             </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/admin-sidebar/list-of-students"
-              activeClassName="active"
-            >
-              <FaBook style={iconStyle} />
-              Instructor Handles
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/admin-sidebar/teacher-account"
-              activeClassName="active"
-            >
-              <FaChalkboardTeacher style={iconStyle} />
-              Teacher Account
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/admin-sidebar/subjects" activeClassName="active">
-              <GiBookshelf style={iconStyle} />
-              Subjects
-            </NavLink>
-          </li>
+          </li> */}
           <li>
             <NavLink
               to="/admin-sidebar/student-account"
@@ -120,15 +115,7 @@ const SecretarySidebar = () => {
               Student Account
             </NavLink>
           </li>
-          <li>
-            <NavLink
-              to="/admin-sidebar/section-management"
-              activeClassName="active"
-            >
-              <SiGoogleclassroom style={iconStyle} />
-              Sections
-            </NavLink>
-          </li>
+
           <li>
             <a onClick={onLogout} style={{ color: "white" }} to="/">
               <FaSignOutAlt style={iconStyle} />

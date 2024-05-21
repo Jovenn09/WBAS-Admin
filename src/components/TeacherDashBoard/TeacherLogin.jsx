@@ -6,6 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { useHistory } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import ForgotPasswordModal from "../Login/ForgotPasswordModal";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 const TeacherLogin = () => {
   const { setUser } = useContext(AuthContext);
@@ -13,6 +14,8 @@ const TeacherLogin = () => {
     username: "",
     password: "",
   });
+
+  const history = useHistory();
 
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
@@ -96,11 +99,25 @@ const TeacherLogin = () => {
             className="login-image"
           />
           <form onSubmit={handleSubmit} className="login-form">
-            <h2>
+            <div>
               {" "}
-              COLLEGE OF INFORMATION TECHNOLOGY <br />
-              <br /> Attendance System
-            </h2>
+              <img
+                src="/images/CITE.png"
+                alt="cite logo "
+                style={{ width: 50, height: 50 }}
+              />
+              <h2>
+                {" "}
+                COLLEGE OF INFORMATION TECHNOLOGY <br />
+                <br /> Attendance System
+              </h2>
+            </div>
+            <div className="d-flex px-2">
+              <IoIosArrowRoundBack
+                className="back-arrow"
+                onClick={() => history.push("/")}
+              />
+            </div>
             <div className="form-group">
               <label>
                 <FaUser /> Email

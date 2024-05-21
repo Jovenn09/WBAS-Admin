@@ -64,6 +64,10 @@
   margin-top: 10px;
 }
 
+.back-arrow:hover {
+  cursor: pointer;
+}
+
 .login-form h2 {
   margin-bottom: 20px;
   font-size: 24px;

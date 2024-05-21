@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import supabase from "../../config/supabaseClient";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 const SecretaryLogin = () => {
   const history = useHistory();
@@ -29,7 +30,11 @@ const SecretaryLogin = () => {
         password,
       });
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.log("login error:", error.stack);
+        throw new Error(error.message);
+      }
+
       if (data.user.user_metadata?.access !== "admin") {
         await supabase.auth.signOut();
         throw new Error("Can't sign you in");
@@ -79,11 +84,25 @@ const SecretaryLogin = () => {
             className="login-image"
           />
           <form onSubmit={handleSubmit} className="login-form">
-            <h2>
+            <div>
               {" "}
-              COLLEGE OF INFORMATION TECHNOLOGY <br />
-              <br /> Attendance System
-            </h2>
+              <img
+                src="/images/CITE.png"
+                alt="cite logo "
+                style={{ width: 50, height: 50 }}
+              />
+              <h2>
+                {" "}
+                COLLEGE OF INFORMATION TECHNOLOGY <br />
+                <br /> Attendance System
+              </h2>
+            </div>
+            <div className="d-flex px-2">
+              <IoIosArrowRoundBack
+                className="back-arrow"
+                onClick={() => history.push("/")}
+              />
+            </div>
             <div className="form-group">
               <label>
                 <FaUser /> Email

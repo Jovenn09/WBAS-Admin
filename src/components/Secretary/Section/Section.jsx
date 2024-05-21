@@ -8,6 +8,7 @@ import Table from "react-bootstrap/Table";
 // components
 import AddNewSectionModal from "./modal/AddNewSectionModal";
 import EditSectionModal from "./modal/EditSectionModal";
+import Subject from "../Subject/Subject";
 
 export default function Section() {
   const [showSectionModal, setShowSectionModal] = useState(false);
@@ -99,97 +100,103 @@ export default function Section() {
   };
 
   return (
-    <div className="admin-container">
-      <div className="table-container">
-        <div className="user-search-filter">
-          <h3>Section Management</h3>
-          <input
-            type="text"
-            placeholder="Search section"
-            value={sectionSearchTerm}
-            onChange={(e) => setSectionSearchTerm(e.target.value)}
-          />
-          <div className="new-button">
-            <button onClick={handleNewSectionButtonClick}>
-              <FaPlus /> Create Section
-            </button>
+    <>
+      <div className="admin-container">
+        <div className="table-container">
+          <div className="user-search-filter">
+            <h3>Section Management</h3>
+            <input
+              type="text"
+              placeholder="Search section"
+              value={sectionSearchTerm}
+              onChange={(e) => setSectionSearchTerm(e.target.value)}
+            />
+            <div className="new-button">
+              <button onClick={handleNewSectionButtonClick}>
+                <FaPlus /> Create Section
+              </button>
+            </div>
           </div>
-        </div>
-        <Table responsive className="table table-bordered">
-          <thead className="thead-dark">
-            <tr>
-              <th>Section Code</th>
-              <th>Year Level</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sectionData.map((section) => (
-              <tr key={section.section_code}>
-                <td>{section.section_code}</td>
-                <td>{section.year_level}</td>
-                <td>
-                  <div className="action-buttons">
-                    <button
-                      className="edit-button"
-                      title="Edit"
-                      onClick={() =>
-                        handleEditSectionClick(section.section_code)
-                      }
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={() => confirmDeleteSection(section.section_code)}
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </td>
+          <Table responsive className="table table-bordered">
+            <thead className="thead-dark">
+              <tr>
+                <th>Section Code</th>
+                <th>Year Level</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-        {sectionData.length === 0 && (
-          <div className="no-accounts-message">No sections found.</div>
-        )}
-        <Pagination>
-          <Pagination.Prev
-            onClick={() => setActiveSectionPage(activeSectionPage - 1)}
-            disabled={activeSectionPage === 1}
-          />
-          {[...Array(Math.ceil(numOfSectionsData / itemsPerPage))].map(
-            (_, index) => (
-              <Pagination.Item
-                key={index + 1}
-                active={index + 1 === activeSectionPage}
-                onClick={() => setActiveSectionPage(index + 1)}
-              >
-                {index + 1}
-              </Pagination.Item>
-            )
+            </thead>
+            <tbody>
+              {sectionData.map((section) => (
+                <tr key={section.section_code}>
+                  <td>{section.section_code}</td>
+                  <td>{section.year_level}</td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="edit-button"
+                        title="Edit"
+                        onClick={() =>
+                          handleEditSectionClick(section.section_code)
+                        }
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() =>
+                          confirmDeleteSection(section.section_code)
+                        }
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          {sectionData.length === 0 && (
+            <div className="no-accounts-message">No sections found.</div>
           )}
-          <Pagination.Next
-            onClick={() => setActiveSectionPage(activeSectionPage + 1)}
-            disabled={
-              activeSectionPage === Math.ceil(numOfSectionsData / itemsPerPage)
-            }
-          />
-        </Pagination>
+          <Pagination>
+            <Pagination.Prev
+              onClick={() => setActiveSectionPage(activeSectionPage - 1)}
+              disabled={activeSectionPage === 1}
+            />
+            {[...Array(Math.ceil(numOfSectionsData / itemsPerPage))].map(
+              (_, index) => (
+                <Pagination.Item
+                  key={index + 1}
+                  active={index + 1 === activeSectionPage}
+                  onClick={() => setActiveSectionPage(index + 1)}
+                >
+                  {index + 1}
+                </Pagination.Item>
+              )
+            )}
+            <Pagination.Next
+              onClick={() => setActiveSectionPage(activeSectionPage + 1)}
+              disabled={
+                activeSectionPage ===
+                Math.ceil(numOfSectionsData / itemsPerPage)
+              }
+            />
+          </Pagination>
+        </div>
+        <AddNewSectionModal
+          show={showSectionModal}
+          closeModal={closeModal}
+          refetchData={fetchSectionsData}
+        />
+        <EditSectionModal
+          show={showSectionEditModal}
+          closeModal={closeModal}
+          sectionId={editSectionId}
+          fetchSectionData={fetchSectionsData}
+        />
       </div>
-      <AddNewSectionModal
-        show={showSectionModal}
-        closeModal={closeModal}
-        refetchData={fetchSectionsData}
-      />
-      <EditSectionModal
-        show={showSectionEditModal}
-        closeModal={closeModal}
-        sectionId={editSectionId}
-        fetchSectionData={fetchSectionsData}
-      />
-    </div>
+      <Subject />
+    </>
   );
 }

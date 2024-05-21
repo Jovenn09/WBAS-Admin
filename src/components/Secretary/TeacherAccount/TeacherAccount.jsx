@@ -189,13 +189,13 @@ export default function TeacherAccount() {
                       >
                         <FaEdit />
                       </button>
-                      <button
+                      {/* <button
                         className="delete-button"
                         onClick={() => confirmDelete(teacher.uuid)}
                         title="Delete"
                       >
                         <FaTrash />
-                      </button>
+                      </button> */}
                       <button
                         className="disable-button"
                         title="Disable"

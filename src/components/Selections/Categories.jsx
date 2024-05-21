@@ -54,12 +54,19 @@ const Categories = () => {
               className="login-image"
             />
             <form className="login-form">
-              <h2>
+              <div>
                 {" "}
-                COLLEGE OF INFORMATION TECHNOLOGY <br />
-                <br />
-                Attendance System
-              </h2>
+                <img
+                  src="/images/CITE.png"
+                  alt="cite logo "
+                  style={{ width: 50, height: 50 }}
+                />
+                <h2>
+                  {" "}
+                  COLLEGE OF INFORMATION TECHNOLOGY <br />
+                  <br /> Attendance System
+                </h2>
+              </div>
               <div className="form-group"></div>
               <div className="form-group"></div>
 

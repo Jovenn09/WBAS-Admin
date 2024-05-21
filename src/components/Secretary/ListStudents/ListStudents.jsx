@@ -7,6 +7,7 @@ import Select from "react-select";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import Swal from "sweetalert2";
 import Table from "react-bootstrap/Table";
+import TeacherAccount from "../TeacherAccount/TeacherAccount";
 
 const ListStudents = () => {
   const [filters, setFilters] = useState({
@@ -188,142 +189,142 @@ const ListStudents = () => {
   }, []);
 
   return (
-    <div className="list-students-container">
-      <h2>List of Assign Instructor</h2>
-
-      <div className="filters">
-        <label>
-          Instructor:
-          <Select
-            value={filterInstructor}
-            onChange={(selectedOption) => setFilterInstructor(selectedOption)}
-            options={instructors.map((instructor) => ({
-              value: instructor.uuid,
-              label: instructor.name,
-            }))}
-            isClearable
-            placeholder="Select Intructor"
+    <>
+      <div className="list-students-container">
+        <h2>List of Assign Instructor</h2>
+        <div className="filters">
+          <label>
+            Instructor:
+            <Select
+              value={filterInstructor}
+              onChange={(selectedOption) => setFilterInstructor(selectedOption)}
+              options={instructors.map((instructor) => ({
+                value: instructor.uuid,
+                label: instructor.name,
+              }))}
+              isClearable
+              placeholder="Select Intructor"
+            />
+          </label>
+          <label>
+            Subject:
+            <Select
+              value={filterSubjects}
+              onChange={(selectedOption) => setFilterSubjects(selectedOption)}
+              options={subjects.map((subject) => ({
+                value: subject.subject_code,
+                label: subject.subject_description,
+              }))}
+              isClearable
+              placeholder="Select Subject"
+            />
+          </label>
+          <label>
+            Section:
+            <Select
+              value={filterSections}
+              onChange={(selectedOption) => setFilterSections(selectedOption)}
+              options={sections.map((section) => ({
+                value: section.section_code,
+                label: section.section_code,
+              }))}
+              isClearable
+              placeholder="Select Section"
+            />
+          </label>
+          <label>
+            School Year:
+            <Select
+              value={filterSchoolYear}
+              onChange={(selectedOption) => setFilterSchoolYear(selectedOption)}
+              options={schoolYear.map((school_year) => ({
+                value: school_year,
+                label: school_year,
+              }))}
+              isClearable
+              placeholder="Select School Year"
+            />
+          </label>
+          <label>
+            Semester:
+            <Select
+              value={filterSemester}
+              onChange={(selectedOption) => setFilterSemester(selectedOption)}
+              options={[
+                { value: "first semester", label: "First Semester" },
+                { value: "second semester", label: "Second Semester" },
+                { value: "summer", label: "Summer" },
+              ]}
+              isClearable
+              placeholder="Select School Year"
+            />
+          </label>
+        </div>
+        <Table responsive className="table">
+          <thead>
+            <tr>
+              <th>Instructor</th>
+              <th>Subject</th>
+              <th>Section</th>
+              <th>School Year</th>
+              <th>Semester</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {assignedStudents.map((data) => {
+              return (
+                <tr key={data.teacher_id + data.subject_id + data.section_id}>
+                  <td>{data.teachers.name}</td>
+                  <td>
+                    {data.subject_id} - {data.subjects.subject_description}
+                  </td>
+                  <td>{data.section_id}</td>
+                  <td>{data.school_year}</td>
+                  <td style={{ textTransform: "capitalize" }}>
+                    {data.semester}
+                  </td>
+                  <td>
+                    <Button
+                      variant="danger"
+                      onClick={() =>
+                        handleDelete(
+                          data.teacher_id,
+                          data.subject_id,
+                          data.section_id
+                        )
+                      }
+                    >
+                      <FaTrash />
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+        <Pagination>
+          <Pagination.Prev
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
           />
-        </label>
-        <label>
-          Subject:
-          <Select
-            value={filterSubjects}
-            onChange={(selectedOption) => setFilterSubjects(selectedOption)}
-            options={subjects.map((subject) => ({
-              value: subject.subject_code,
-              label: subject.subject_description,
-            }))}
-            isClearable
-            placeholder="Select Subject"
+          {[...Array(Math.ceil(listCount / itemsPerPage))].map((_, index) => (
+            <Pagination.Item
+              key={index + 1}
+              active={index + 1 === currentPage}
+              onClick={() => handlePageChange(index + 1)}
+            >
+              {index + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === Math.ceil(listCount / itemsPerPage)}
           />
-        </label>
-
-        <label>
-          Section:
-          <Select
-            value={filterSections}
-            onChange={(selectedOption) => setFilterSections(selectedOption)}
-            options={sections.map((section) => ({
-              value: section.section_code,
-              label: section.section_code,
-            }))}
-            isClearable
-            placeholder="Select Section"
-          />
-        </label>
-
-        <label>
-          School Year:
-          <Select
-            value={filterSchoolYear}
-            onChange={(selectedOption) => setFilterSchoolYear(selectedOption)}
-            options={schoolYear.map((school_year) => ({
-              value: school_year,
-              label: school_year,
-            }))}
-            isClearable
-            placeholder="Select School Year"
-          />
-        </label>
-        <label>
-          Semester:
-          <Select
-            value={filterSemester}
-            onChange={(selectedOption) => setFilterSemester(selectedOption)}
-            options={[
-              { value: "first semester", label: "First Semester" },
-              { value: "second semester", label: "Second Semester" },
-              { value: "summer", label: "Summer" },
-            ]}
-            isClearable
-            placeholder="Select School Year"
-          />
-        </label>
+        </Pagination>
       </div>
-
-      <Table responsive className="table">
-        <thead>
-          <tr>
-            <th>Instructor</th>
-            <th>Subject</th>
-            <th>Section</th>
-            <th>School Year</th>
-            <th>Semester</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {assignedStudents.map((data) => {
-            return (
-              <tr key={data.teacher_id + data.subject_id + data.section_id}>
-                <td>{data.teachers.name}</td>
-                <td>
-                  {data.subject_id} - {data.subjects.subject_description}
-                </td>
-                <td>{data.section_id}</td>
-                <td>{data.school_year}</td>
-                <td style={{ textTransform: "capitalize" }}>{data.semester}</td>
-                <td>
-                  <Button
-                    variant="danger"
-                    onClick={() =>
-                      handleDelete(
-                        data.teacher_id,
-                        data.subject_id,
-                        data.section_id
-                      )
-                    }
-                  >
-                    <FaTrash />
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
-
-      <Pagination>
-        <Pagination.Prev
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        />
-        {[...Array(Math.ceil(listCount / itemsPerPage))].map((_, index) => (
-          <Pagination.Item
-            key={index + 1}
-            active={index + 1 === currentPage}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </Pagination.Item>
-        ))}
-        <Pagination.Next
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === Math.ceil(listCount / itemsPerPage)}
-        />
-      </Pagination>
-    </div>
+      <TeacherAccount />
+    </>
   );
 };
 

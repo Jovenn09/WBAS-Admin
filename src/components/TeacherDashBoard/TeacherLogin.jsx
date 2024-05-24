@@ -74,9 +74,9 @@ const TeacherLogin = () => {
 
   return (
     <div className="header-container">
-      <div className="university-header">
+      <div className="university-header my-4">
         <img
-          src="images/PEN logo.jpg"
+          src="images/CITE.png"
           alt="University Logo"
           className="phinma-logo"
         />
@@ -100,12 +100,6 @@ const TeacherLogin = () => {
           />
           <form onSubmit={handleSubmit} className="login-form">
             <div>
-              {" "}
-              <img
-                src="/images/CITE.png"
-                alt="cite logo "
-                style={{ width: 50, height: 50 }}
-              />
               <h2>
                 {" "}
                 COLLEGE OF INFORMATION TECHNOLOGY <br />

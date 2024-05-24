@@ -3,6 +3,8 @@ import { AiFillWarning } from "react-icons/ai";
 import "./DashBoard.css";
 import supabase, { supabaseAdmin } from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
+import { PiStudentBold } from "react-icons/pi";
+import { FaBook } from "react-icons/fa";
 
 const Dashboard = ({ collapsed }) => {
   const { user } = useContext(AuthContext);
@@ -27,6 +29,9 @@ const Dashboard = ({ collapsed }) => {
   ];
   const [subjects, setSubjects] = useState([]);
   const teacherId = sessionStorage.getItem("user_id");
+
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [totalSubjects, setTotalSubjects] = useState(0);
 
   console.log(user.id);
   useEffect(() => {
@@ -88,6 +93,43 @@ const Dashboard = ({ collapsed }) => {
   const handleMarkAttendanceClick = () => {
     window.location.href = "/teacher-sidebar/attendance";
   };
+
+  async function getNumberOfStudents() {
+    let { data: assign, error: assignError } = await supabase
+      .from("assign")
+      .select("section_id, subject_id")
+      .eq("teacher_id", user.id);
+
+    if (assignError) return console.log(error.message);
+
+    const uniqueSection = Array.from(
+      new Set(assign.map(({ section_id }) => section_id))
+    );
+
+    const uniqueSubject = Array.from(
+      new Set(assign.map(({ subject_id }) => subject_id))
+    );
+
+    console.log(uniqueSection);
+
+    let { data: students, error } = await supabaseAdmin
+      .from("student_record")
+      .select("id")
+      .in("section", uniqueSection);
+
+    if (error) return console.log(error.message);
+
+    const uniqueStudents = Array.from(
+      new Set(students.map((student) => student.id))
+    );
+
+    setTotalStudents(uniqueStudents.length);
+    setTotalSubjects(uniqueSubject.length);
+  }
+
+  useEffect(() => {
+    getNumberOfStudents();
+  }, []);
 
   return (
     <div className={`dashboard-container ${collapsed ? "collapsed" : ""}`}>
@@ -153,6 +195,33 @@ const Dashboard = ({ collapsed }) => {
             ))}
           </ul>
         </div> */}
+
+        <section className="d-flex justify-content-center gap-3 flex-wrap">
+          <div
+            className="card mb-3"
+            style={{ minWidth: "14rem", backgroundColor: "#2196F3" }}
+          >
+            <div className="card-body">
+              <h3 className="card-title text-light">Students</h3>
+              <div className="d-flex align-items-center justify-content-between">
+                <PiStudentBold color="white" size={33} />
+                <span className="fs-5 fw-bold text-light">{totalStudents}</span>
+              </div>
+            </div>
+          </div>
+          <div
+            className="card mb-3"
+            style={{ minWidth: "14rem", backgroundColor: "#4CAF50" }}
+          >
+            <div className="card-body">
+              <h3 className="card-title text-light">Subjects</h3>
+              <div className="d-flex align-items-center justify-content-between">
+                <FaBook color="white" size={33} />
+                <span className="fs-5 fw-bold text-light">{totalSubjects}</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <p className="quick-access-text">Quick Access to Attendance Marking:</p>
 

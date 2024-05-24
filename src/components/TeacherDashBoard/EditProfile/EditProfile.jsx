@@ -161,6 +161,9 @@ const EditProfile = () => {
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onPaste={(e) => e.preventDefault()}
+            onCopy={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
           />
         </div>
         <div className="form-group">
@@ -171,6 +174,9 @@ const EditProfile = () => {
             name="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
+            onPaste={(e) => e.preventDefault()}
+            onCopy={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
           />
         </div>
         <div className="form-group">
@@ -181,6 +187,9 @@ const EditProfile = () => {
             name="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            onPaste={(e) => e.preventDefault()}
+            onCopy={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
           />
         </div>
         <button type="button" onClick={onChangePassword} disabled={loading}>

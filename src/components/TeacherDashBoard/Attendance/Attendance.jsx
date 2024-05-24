@@ -6,6 +6,14 @@ import Swal from "sweetalert2";
 import supabase from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
 
+const isSameDay = (date1, date2) => {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+};
+
 const Attendance = () => {
   const { user } = useContext(AuthContext);
 
@@ -156,16 +164,17 @@ const Attendance = () => {
     const currentDate = new Date();
     const selectedAttendanceDate = new Date(selectedDate);
 
-    if (selectedAttendanceDate > currentDate) {
-      Swal.fire({
+    console.log(currentDate);
+    console.log(selectedAttendanceDate);
+
+    if (!isSameDay(currentDate, selectedAttendanceDate))
+      return Swal.fire({
         title: "Error!",
-        text: "You cannot take attendance for a future date",
+        text: "Make sure that the selected date is same as today",
         icon: "error",
         timer: 1500,
         timerProgressBar: true,
       });
-      return;
-    }
 
     if (!selectedSection || !selectedDate || !selectedClass) {
       Swal.fire({

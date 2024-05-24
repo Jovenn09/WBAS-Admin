@@ -140,6 +140,9 @@ const TeacherLogin = () => {
                 value={state.password}
                 onChange={handleInputChange}
                 required
+                onPaste={(e) => e.preventDefault()}
+                onCopy={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
               />
             </div>
 

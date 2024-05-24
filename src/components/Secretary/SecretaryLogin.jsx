@@ -125,6 +125,9 @@ const SecretaryLogin = () => {
                 value={state.password}
                 onChange={handleInputChange}
                 required
+                onPaste={(e) => {
+                  e.preventDefault();
+                }}
               />
             </div>
 

@@ -97,7 +97,7 @@ const SecretarySidebar = () => {
               Class
             </NavLink>
           </li>
-          {/* <li>
+          <li>
             <NavLink
               to="/admin-sidebar/assign-students"
               activeClassName="active"
@@ -105,7 +105,7 @@ const SecretarySidebar = () => {
               <FaUserGraduate style={iconStyle} />
               Assign Students
             </NavLink>
-          </li> */}
+          </li>
           <li>
             <NavLink
               to="/admin-sidebar/student-account"

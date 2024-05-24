@@ -63,45 +63,58 @@ export default function Dashboard() {
       <div className="admin-container ">
         <h2 className="text-center mb-5">Dashboard</h2>
         <section className="d-flex justify-content-center gap-3 flex-wrap">
-          <div className="card mb-3" style={{ minWidth: "14rem" }}>
+          <div
+            className="card mb-3"
+            style={{ minWidth: "14rem", backgroundColor: "#2196F3" }}
+          >
             <div className="card-body">
-              <h3 className="card-title">Students</h3>
+              <h3 className="card-title text-light">Students</h3>
               <div className="d-flex align-items-center justify-content-between">
-                <PiStudentBold size={33} />
-                <span className="fs-5 fw-bold">{totalStudents}</span>
+                <PiStudentBold color="white" size={33} />
+                <span className="fs-5 fw-bold text-light">{totalStudents}</span>
               </div>
             </div>
           </div>
-          <div className="card mb-3" style={{ minWidth: "14rem" }}>
+          <div
+            className="card mb-3"
+            style={{ minWidth: "14rem", backgroundColor: "#FF9800" }}
+          >
             <div className="card-body">
-              <h3 className="card-title">Instructors</h3>
+              <h3 className="card-title text-light">Instructors</h3>
               <div className="d-flex align-items-center justify-content-between">
-                <FaChalkboardTeacher size={33} />
-                <span className="fs-5 fw-bold">{totalInstructors}</span>
+                <FaChalkboardTeacher color="white" size={33} />
+                <span className="fs-5 fw-bold text-light">
+                  {totalInstructors}
+                </span>
               </div>
             </div>
           </div>
-          <div className="card mb-3" style={{ minWidth: "14rem" }}>
+          <div
+            className="card mb-3"
+            style={{ minWidth: "14rem", backgroundColor: "#F44336" }}
+          >
             <div className="card-body">
-              <h3 className="card-title">Subjects</h3>
+              <h3 className="card-title text-light">Subjects</h3>
               <div className="d-flex align-items-center justify-content-between">
-                <FaBook size={33} />
-                <span className="fs-5 fw-bold">{totalSubjects}</span>
+                <FaBook color="white" size={33} />
+                <span className="fs-5 fw-bold text-light">{totalSubjects}</span>
               </div>
             </div>
           </div>
-          <div className="card mb-3" style={{ minWidth: "14rem" }}>
+          <div
+            className="card mb-3"
+            style={{ minWidth: "14rem", backgroundColor: "#4CAF50" }}
+          >
             <div className="card-body">
-              <h3 className="card-title">Section</h3>
+              <h3 className="card-title text-light">Section</h3>
               <div className="d-flex align-items-center justify-content-between">
-                <SiGoogleclassroom size={33} />
-                <span className="fs-5 fw-bold">{totalSections}</span>
+                <SiGoogleclassroom color="white" size={33} />
+                <span className="fs-5 fw-bold text-light">{totalSections}</span>
               </div>
             </div>
           </div>
         </section>
       </div>
-      <AssignStudents />
     </>
   );
 }

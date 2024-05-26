@@ -130,8 +130,15 @@ const ListStudents = () => {
         .eq("subject", subjectId)
         .eq("section", sectionId);
 
+      const { error: scheduleError } = await supabaseAdmin
+        .from("schedule")
+        .delete()
+        .eq("subject", subjectId)
+        .eq("section", sectionId);
+
       if (error) return console.error(error);
       if (studentError) return console.error(studentError);
+      if (scheduleError) return console.error(scheduleError);
       fetchAssignedStudents();
       Swal.fire("Removed!", "Successfully deleted!.", "success");
     }

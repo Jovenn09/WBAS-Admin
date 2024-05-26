@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Pagination } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Attendance.css";
 import Swal from "sweetalert2";
 import supabase from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
+import { format, parse } from "date-fns";
+
+const format24HourTo12Hour = (time24) => {
+  const date = parse(time24, "HH:mm:ss", new Date());
+
+  return format(date, "hh:mm aa");
+};
 
 const isSameDay = (date1, date2) => {
   return (
@@ -30,6 +36,8 @@ const Attendance = () => {
   const [absentStudents, setAbsentStudents] = useState([]);
   const [studentAttendance, setStudentAttendance] = useState([]);
   const [excuseStudents, setExcuseStudents] = useState([]);
+
+  const [schedule, setSchedule] = useState([]);
 
   const [activePage, setActivePage] = useState(1);
 
@@ -112,6 +120,17 @@ const Attendance = () => {
     }));
 
     setStudentAttendance(defaultAttendance);
+
+    let { data: schedule, error } = await supabase
+      .from("schedule")
+      .select("*")
+      .eq("subject", selectedClass)
+      .eq("section", selectedSection);
+
+    if (error) return console.log(error.message);
+    console.log(schedule);
+
+    setSchedule(schedule);
   }
 
   // async function paginateStudents() {
@@ -329,7 +348,13 @@ const Attendance = () => {
             Show
           </button>
         </div>
-
+        {schedule.map((obj, index) => (
+          <p className="m-1" key={index}>
+            <span style={{ textTransform: "capitalize" }}>{obj.day}</span>,{" "}
+            {format24HourTo12Hour(obj.start_time)} -
+            {format24HourTo12Hour(obj.end_time)}{" "}
+          </p>
+        ))}
         <div className="attendance-list">
           <table>
             <thead>

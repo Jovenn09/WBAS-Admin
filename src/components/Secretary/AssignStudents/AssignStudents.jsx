@@ -9,6 +9,8 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { FaTrash } from "react-icons/fa";
 import AddStudentModal from "./modal/AddStudentModal";
+import AddScheduleModal from "./modal/AddScheduleModal";
+import { format, parse } from "date-fns";
 
 function generateSchoolYearsArray() {
   const currentYear = new Date().getFullYear();
@@ -72,6 +74,12 @@ const AssignStudents = () => {
   const [showAddStudentModal, setShowAddStudentModal] = React.useState(false);
 
   const [importedData, setImportedData] = useState([]);
+
+  const [showAddScheduleModal, setShowAddScheduleModal] = useState(false);
+  const [schedule, setSchedule] = useState([]);
+  const [day, setDay] = useState("");
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -153,7 +161,8 @@ const AssignStudents = () => {
       !section ||
       !semester ||
       !importedData.length ||
-      !schoolYear
+      !schoolYear ||
+      !schedule.length
     ) {
       return Swal.fire(
         "Please fill all fields and select at least one student",
@@ -211,7 +220,22 @@ const AssignStudents = () => {
         .from("student_record")
         .insert(students);
 
-      if (err) {
+      const sche = schedule.map((data) => ({
+        day: data.day,
+        start_time: data.startTime,
+        end_time: data.endTime,
+        subject,
+        section,
+      }));
+
+      const { data, error: insertError } = await supabaseAdmin
+        .from("schedule")
+        .insert(sche)
+        .select();
+
+      console.log(data);
+
+      if (err || insertError) {
         Swal.fire("Error!", err.message, "error");
         return;
       }
@@ -273,6 +297,12 @@ const AssignStudents = () => {
 
     reader.readAsArrayBuffer(file);
   }
+
+  const format24HourTo12Hour = (time24) => {
+    const date = parse(time24, "HH:mm", new Date());
+
+    return format(date, "hh:mm aa");
+  };
 
   return (
     <div className="assign-students-container">
@@ -347,6 +377,37 @@ const AssignStudents = () => {
               required
             />
           </label>
+          <div className="my-3 d-flex gap-2">
+            <button type="button" onClick={() => setShowAddScheduleModal(true)}>
+              Add Schedule
+            </button>
+            <div
+              style={{
+                backgroundColor: "white",
+                width: "300px",
+                borderRadius: "12px",
+                border: "1px solid black",
+                overflow: "auto",
+                height: "50px",
+                paddingInline: "4px",
+              }}
+            >
+              {schedule.map((obj, index) => (
+                <p className="m-0" key={index}>
+                  <span style={{ textTransform: "capitalize" }}>{obj.day}</span>
+                  , {format24HourTo12Hour(obj.startTime)}{" "}
+                  {format24HourTo12Hour(obj.endTime)}{" "}
+                  <span
+                    style={{
+                      fontWeight: "bolder",
+                    }}
+                  >
+                    -
+                  </span>
+                </p>
+              ))}
+            </div>
+          </div>
           <div className="d-flex gap-2 align-items-center flex-wrap mb-5">
             <Form.Group
               style={{ width: "fit-content" }}
@@ -438,6 +499,7 @@ const AssignStudents = () => {
               }
               setImportedData([]);
               setHasImport(false);
+              setSchedule([]);
             }}
           >
             Reset
@@ -449,6 +511,17 @@ const AssignStudents = () => {
         closeModal={() => setShowAddStudentModal(false)}
         setData={setImportedData}
         data={importedData}
+      />
+      <AddScheduleModal
+        show={showAddScheduleModal}
+        handleClose={() => setShowAddScheduleModal(false)}
+        setData={setSchedule}
+        day={day}
+        setDay={setDay}
+        startTime={startTime}
+        setStartTime={setStartTime}
+        endTime={endTime}
+        setEndTime={setEndTime}
       />
     </div>
   );

@@ -17,6 +17,7 @@ a:hover {
 }
 
 /* ADMIN */
+
 .admin-container {
   background-color: #ffffff;
   padding: 20px;
@@ -142,6 +143,11 @@ a {
 }
 .add-subjects-button:hover {
   background-color: rgb(1, 110, 74);
+}
+
+/* admin dashboard */
+.card-body:hover {
+  cursor: pointer;
 }
 
 @media only screen and (max-width: 600px) {

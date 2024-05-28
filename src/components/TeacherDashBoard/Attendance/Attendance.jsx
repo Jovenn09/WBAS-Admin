@@ -19,6 +19,8 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import Spinner from "react-bootstrap/Spinner";
+import { tr } from "date-fns/locale";
 
 const format24HourTo12Hour = (time24) => {
   const date = parse(time24, "HH:mm:ss", new Date());
@@ -51,9 +53,8 @@ const Attendance = () => {
   const [studentAttendance, setStudentAttendance] = useState([]);
   const [excuseStudents, setExcuseStudents] = useState([]);
 
-  const [isAscending, setIsAscending] = useState(true);
-  const [sortBy, setSortBy] = useState("name");
   const [hasReorder, setHasReorder] = useState(false);
+  const [sorting, setSorting] = useState(false);
 
   const [schedule, setSchedule] = useState([]);
 
@@ -115,6 +116,7 @@ const Attendance = () => {
   }, [selectedSem]);
 
   async function showStudents(sortBy, isAscending) {
+    setSorting(true);
     const students = await supabase
       .from("student_record")
       .select("*", { count: "exact" })
@@ -149,6 +151,7 @@ const Attendance = () => {
     console.log(schedule);
 
     setSchedule(schedule);
+    setSorting(false);
   }
 
   const sortingHandler = (orderBool, sortName) => {
@@ -156,6 +159,7 @@ const Attendance = () => {
   };
 
   const onSaveSort = async () => {
+    setSorting(true);
     const newStudentsOrder = students.map((student, index) => ({
       ...student,
       order: index + 1,
@@ -169,7 +173,7 @@ const Attendance = () => {
     setHasReorder(false);
     if (error) return console.log(error.message);
 
-    console.log(data);
+    setSorting(false);
     alert("Successfully save ");
   };
 
@@ -311,11 +315,6 @@ const Attendance = () => {
     day = day < 10 ? `0${day}` : day;
     return `${year}-${month}-${day}`;
   }
-
-  useEffect(() => {
-    console.log("Absents: ", absentStudents);
-    console.log("Excuse: ", excuseStudents);
-  }, [absentStudents, excuseStudents]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -478,7 +477,13 @@ const Attendance = () => {
               onDragEnd={handleDragEnd}
             >
               <tbody>
-                {students.length === 0 ? (
+                {sorting ? (
+                  <tr>
+                    <td colSpan="8">
+                      <Spinner animation="border" className="my-3" />
+                    </td>
+                  </tr>
+                ) : students.length === 0 ? (
                   <tr>
                     <td colSpan="8">No Student Found</td>
                   </tr>

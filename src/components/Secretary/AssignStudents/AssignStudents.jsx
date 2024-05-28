@@ -209,11 +209,12 @@ const AssignStudents = () => {
         return;
       }
 
-      const students = importedData.map((student) => ({
+      const students = importedData.map((student, index) => ({
         id: student.student_id,
         name: student.name,
         subject: subject,
         section: section,
+        order: index + 1,
       }));
 
       const { error: err } = await supabaseAdmin

@@ -5,6 +5,20 @@ import Swal from "sweetalert2";
 import supabase from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
 import { format, parse } from "date-fns";
+import TableRow from "../../../module/TableRow";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCorners,
+} from "@dnd-kit/core";
+import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 const format24HourTo12Hour = (time24) => {
   const date = parse(time24, "HH:mm:ss", new Date());
@@ -36,6 +50,10 @@ const Attendance = () => {
   const [absentStudents, setAbsentStudents] = useState([]);
   const [studentAttendance, setStudentAttendance] = useState([]);
   const [excuseStudents, setExcuseStudents] = useState([]);
+
+  const [isAscending, setIsAscending] = useState(true);
+  const [sortBy, setSortBy] = useState("name");
+  const [hasReorder, setHasReorder] = useState(false);
 
   const [schedule, setSchedule] = useState([]);
 
@@ -96,11 +114,11 @@ const Attendance = () => {
     getHandleClass();
   }, [selectedSem]);
 
-  async function showStudents() {
+  async function showStudents(sortBy, isAscending) {
     const students = await supabase
       .from("student_record")
       .select("*", { count: "exact" })
-      .order("name", { ascending: true })
+      .order(sortBy, { ascending: isAscending })
       .eq("subject", selectedClass)
       .eq("section", selectedSection);
 
@@ -132,6 +150,28 @@ const Attendance = () => {
 
     setSchedule(schedule);
   }
+
+  const sortingHandler = (orderBool, sortName) => {
+    showStudents(sortName, orderBool);
+  };
+
+  const onSaveSort = async () => {
+    const newStudentsOrder = students.map((student, index) => ({
+      ...student,
+      order: index + 1,
+    }));
+
+    const { data, error } = await supabase
+      .from("student_record")
+      .upsert(newStudentsOrder)
+      .select();
+
+    setHasReorder(false);
+    if (error) return console.log(error.message);
+
+    console.log(data);
+    alert("Successfully save ");
+  };
 
   // async function paginateStudents() {
   //   const start = (activePage - 1) * itemsPerPage;
@@ -277,6 +317,30 @@ const Attendance = () => {
     console.log("Excuse: ", excuseStudents);
   }, [absentStudents, excuseStudents]);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const getStudentPosition = (id) =>
+    students.findIndex((student) => student.id === id);
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id === over.id) return;
+
+    setHasReorder(true);
+    setStudents((tasks) => {
+      const originalPos = getStudentPosition(active.id);
+      const newPos = getStudentPosition(over.id);
+
+      return arrayMove(tasks, originalPos, newPos);
+    });
+  };
+
   return (
     <div className="attendance-container">
       <h1>Take Attendance</h1>
@@ -342,7 +406,7 @@ const Attendance = () => {
           </label>
           <button
             className="show-student mx-3"
-            onClick={showStudents}
+            onClick={() => showStudents("name", true)}
             disabled={!selectedClass || !selectedSection}
           >
             Show
@@ -355,6 +419,49 @@ const Attendance = () => {
             {format24HourTo12Hour(obj.end_time)}{" "}
           </p>
         ))}
+        <label className="d-flex gap-2 my-3 mt-4">
+          {/* <select>
+            <option value="">Ascending</option>
+            <option value="">Descending</option>
+            <option value="">Random</option>
+          </select> */}
+          <button
+            className="btn btn-warning"
+            disabled={
+              !selectedClass || !selectedSection || students.length === 0
+            }
+            onClick={() => sortingHandler(true, "name")}
+          >
+            Sort: A - Z
+          </button>
+          <button
+            className="btn btn-warning"
+            disabled={
+              !selectedClass || !selectedSection || students.length === 0
+            }
+            onClick={() => sortingHandler(false, "name")}
+          >
+            Sort: Z - A
+          </button>
+          <div className="ms-auto d-flex gap-2">
+            <button
+              className="btn btn-primary"
+              disabled={
+                !selectedClass || !selectedSection || students.length === 0
+              }
+              onClick={() => sortingHandler(true, "order")}
+            >
+              Sort by My Order
+            </button>
+            <button
+              className="btn btn-success"
+              disabled={!hasReorder}
+              onClick={onSaveSort}
+            >
+              Save Order Changes
+            </button>
+          </div>
+        </label>
         <div className="attendance-list">
           <table>
             <thead>
@@ -365,62 +472,31 @@ const Attendance = () => {
                 <th>Attendance</th>
               </tr>
             </thead>
-            <tbody>
-              {students.length === 0 ? (
-                <tr>
-                  <td colSpan="8">No Student Found</td>
-                </tr>
-              ) : (
-                students.map((student, index) => (
-                  <tr key={student.id}>
-                    <td>{index + 1}</td>
-                    <td>{student.id}</td>
-                    <td>{student.name}</td>
-                    <td>
-                      <div className="attendance-options">
-                        <label>
-                          <input
-                            type="radio"
-                            value="Present"
-                            name={`attendance-${student.id}`}
-                            defaultChecked
-                            onChange={() =>
-                              handleAttendanceStatusChange(
-                                student.id,
-                                "Present"
-                              )
-                            }
-                          />
-                          Present
-                        </label>
-                        <label>
-                          <input
-                            type="radio"
-                            value="Absent"
-                            name={`attendance-${student.id}`}
-                            onChange={() =>
-                              handleAttendanceStatusChange(student.id, "Absent")
-                            }
-                          />
-                          Absent
-                        </label>
-                        <label>
-                          <input
-                            type="radio"
-                            value="Absent"
-                            name={`attendance-${student.id}`}
-                            onChange={() =>
-                              handleAttendanceStatusChange(student.id, "Excuse")
-                            }
-                          />
-                          Excuse
-                        </label>
-                      </div>
-                    </td>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCorners}
+              onDragEnd={handleDragEnd}
+            >
+              <tbody>
+                {students.length === 0 ? (
+                  <tr>
+                    <td colSpan="8">No Student Found</td>
                   </tr>
-                ))
-              )}
-            </tbody>
+                ) : (
+                  <SortableContext
+                    items={students}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <TableRow
+                      students={students}
+                      handleAttendanceStatusChange={
+                        handleAttendanceStatusChange
+                      }
+                    />
+                  </SortableContext>
+                )}
+              </tbody>
+            </DndContext>
           </table>
 
           {/* <Pagination>

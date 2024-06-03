@@ -10,6 +10,9 @@ import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import VerifyEmail from "./VerifyEmail";
 import Spinner from "react-bootstrap/Spinner";
+import { IoIosArrowRoundBack } from "react-icons/io";
+import { useHistory } from "react-router-dom";
+
 const defaultStudentIdObj = {
   deptCode: "",
   year: "",
@@ -19,6 +22,8 @@ const defaultStudentIdObj = {
 const phinmaEmail = /^[a-zA-Z0-9._%+-]+\.up@phinmaed\.com$/;
 
 const Registration = () => {
+  const history = useHistory();
+
   const [showModal, setShowModal] = useState(false);
   const { setUser } = useContext(AuthContext);
 
@@ -164,6 +169,10 @@ const Registration = () => {
       </div>
       <div className="login-container">
         <div className="card-container px-4 py-3">
+          <IoIosArrowRoundBack
+            className="back-arrow"
+            onClick={() => history.push("/login")}
+          />
           <form onSubmit={handleSubmit} className="login-form">
             <h2>
               {" "}

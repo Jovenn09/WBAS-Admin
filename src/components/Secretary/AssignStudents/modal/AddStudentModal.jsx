@@ -46,7 +46,7 @@ const AddStudentModal = ({ show, closeModal, setData, data }) => {
   return (
     <Modal show={show} onHide={closeModal}>
       <Modal.Header closeButton>
-        <Modal.Title>Add Student Account</Modal.Title>
+        <Modal.Title>Add Student</Modal.Title>
       </Modal.Header>
       <Form
         onSubmit={(e) => {
@@ -113,7 +113,7 @@ const AddStudentModal = ({ show, closeModal, setData, data }) => {
         </Modal.Body>
         <Modal.Footer>
           <Button type="submit" variant="primary">
-            Add Student Account
+            Add Student
           </Button>
           <Button
             variant="secondary"

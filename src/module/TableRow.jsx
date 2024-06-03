@@ -1,6 +1,7 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { RxDragHandleHorizontal } from "react-icons/rx";
 
 function Row({ student, index, handleAttendanceStatusChange }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -11,14 +12,13 @@ function Row({ student, index, handleAttendanceStatusChange }) {
     transform: CSS.Transform.toString(transform),
   };
 
+  const handleRadioChange = (event, status) => {
+    event.stopPropagation();
+    handleAttendanceStatusChange(student.id, status);
+  };
+
   return (
-    <tr
-      key={student.id}
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
+    <tr key={student.id} ref={setNodeRef} style={style}>
       <td>{index + 1}</td>
       <td>{student.id}</td>
       <td>{student.name}</td>
@@ -30,9 +30,9 @@ function Row({ student, index, handleAttendanceStatusChange }) {
               value="Present"
               name={`attendance-${student.id}`}
               defaultChecked
-              onChange={() =>
-                handleAttendanceStatusChange(student.id, "Present")
-              }
+              onChange={(e) => {
+                handleRadioChange(e, "Present");
+              }}
             />
             Present
           </label>
@@ -41,9 +41,7 @@ function Row({ student, index, handleAttendanceStatusChange }) {
               type="radio"
               value="Absent"
               name={`attendance-${student.id}`}
-              onChange={() =>
-                handleAttendanceStatusChange(student.id, "Absent")
-              }
+              onChange={(e) => handleRadioChange(e, "Absent")}
             />
             Absent
           </label>
@@ -52,13 +50,14 @@ function Row({ student, index, handleAttendanceStatusChange }) {
               type="radio"
               value="Absent"
               name={`attendance-${student.id}`}
-              onChange={() =>
-                handleAttendanceStatusChange(student.id, "Excuse")
-              }
+              onChange={(e) => handleRadioChange(e, "Excuse")}
             />
             Excuse
           </label>
         </div>
+      </td>
+      <td {...attributes} {...listeners}>
+        <RxDragHandleHorizontal />
       </td>
     </tr>
   );

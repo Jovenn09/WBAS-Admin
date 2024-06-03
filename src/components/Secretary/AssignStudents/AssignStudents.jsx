@@ -161,8 +161,7 @@ const AssignStudents = () => {
       !section ||
       !semester ||
       !importedData.length ||
-      !schoolYear ||
-      !schedule.length
+      !schoolYear
     ) {
       return Swal.fire(
         "Please fill all fields and select at least one student",
@@ -171,18 +170,18 @@ const AssignStudents = () => {
       );
     }
 
-    const { data } = await supabaseAdmin
-      .from("assign")
-      .select("*")
-      .eq("subject_id", subject)
-      .eq("section_id", section);
+    // const { data } = await supabaseAdmin
+    //   .from("assign")
+    //   .select("*")
+    //   .eq("subject_id", subject)
+    //   .eq("section_id", section);
 
-    if (data.length > 0)
-      return Swal.fire(
-        "Error!",
-        `${subject} has already been assigned to ${section}`,
-        "error"
-      );
+    // if (data.length > 0)
+    //   return Swal.fire(
+    //     "Error!",
+    //     `${subject} has already been assigned to ${section}`,
+    //     "error"
+    //   );
 
     const confirmResult = await Swal.fire({
       title: "Are you sure?",
@@ -196,7 +195,7 @@ const AssignStudents = () => {
     });
 
     if (confirmResult.isConfirmed) {
-      const { error } = await supabaseAdmin.from("assign").insert({
+      const { error } = await supabaseAdmin.from("assign").upsert({
         teacher_id: teacher,
         subject_id: subject,
         section_id: section,
@@ -217,26 +216,26 @@ const AssignStudents = () => {
         order: index + 1,
       }));
 
+      console.log(students);
+
       const { error: err } = await supabaseAdmin
         .from("student_record")
-        .insert(students);
+        .upsert(students);
 
-      const sche = schedule.map((data) => ({
-        day: data.day,
-        start_time: data.startTime,
-        end_time: data.endTime,
-        subject,
-        section,
-      }));
+      // const sche = schedule.map((data) => ({
+      //   day: data.day,
+      //   start_time: data.startTime,
+      //   end_time: data.endTime,
+      //   subject,
+      //   section,
+      // }));
 
-      const { data, error: insertError } = await supabaseAdmin
-        .from("schedule")
-        .insert(sche)
-        .select();
+      // const { data, error: insertError } = await supabaseAdmin
+      //   .from("schedule")
+      //   .insert(sche)
+      //   .select();
 
-      console.log(data);
-
-      if (err || insertError) {
+      if (err) {
         Swal.fire("Error!", err.message, "error");
         return;
       }
@@ -307,7 +306,7 @@ const AssignStudents = () => {
 
   return (
     <div className="assign-students-container">
-      <h2 className="mb-5">Assign Students</h2>
+      <h2 className="mb-5">Assign</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label className="assign-students-label" style={{ width: "200px" }}>
@@ -378,7 +377,7 @@ const AssignStudents = () => {
               required
             />
           </label>
-          <div className="my-3 d-flex gap-2">
+          {/* <div className="my-3 d-flex gap-2">
             <button type="button" onClick={() => setShowAddScheduleModal(true)}>
               Add Schedule
             </button>
@@ -408,7 +407,7 @@ const AssignStudents = () => {
                 </p>
               ))}
             </div>
-          </div>
+          </div> */}
           <div className="d-flex gap-2 align-items-center flex-wrap mb-5">
             <Form.Group
               style={{ width: "fit-content" }}
@@ -421,7 +420,6 @@ const AssignStudents = () => {
                 type="file"
                 accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 onChange={onImportHandler}
-                required
                 disabled={hasImport}
               />
             </Form.Group>
@@ -513,7 +511,7 @@ const AssignStudents = () => {
         setData={setImportedData}
         data={importedData}
       />
-      <AddScheduleModal
+      {/* <AddScheduleModal
         show={showAddScheduleModal}
         handleClose={() => setShowAddScheduleModal(false)}
         setData={setSchedule}
@@ -523,7 +521,7 @@ const AssignStudents = () => {
         setStartTime={setStartTime}
         endTime={endTime}
         setEndTime={setEndTime}
-      />
+      /> */}
     </div>
   );
 };

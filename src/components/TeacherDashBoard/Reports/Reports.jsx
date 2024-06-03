@@ -127,6 +127,8 @@ const Reports = () => {
 
     const { data, error, count } = await query;
 
+    if (error) return console.log(error.message);
+
     const date = Array.from(new Set(data.map((record) => record.date)));
     setHeaderDate(date);
 
@@ -151,6 +153,7 @@ const Reports = () => {
       return newObj;
     });
 
+    console.log(t);
     setReportData(t);
     setRecordCount(count);
   }

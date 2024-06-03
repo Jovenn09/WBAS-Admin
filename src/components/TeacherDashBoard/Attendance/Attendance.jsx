@@ -152,6 +152,8 @@ const Attendance = () => {
 
     setSchedule(schedule);
     setSorting(false);
+    setAbsentStudents([]);
+    setExcuseStudents([]);
   }
 
   const sortingHandler = (orderBool, sortName) => {
@@ -220,6 +222,11 @@ const Attendance = () => {
     setAbsentStudents((prev) => prev.filter((id) => id !== studentId));
     setExcuseStudents((prev) => prev.filter((id) => id !== studentId));
   };
+
+  useEffect(() => {
+    console.log(absentStudents);
+    console.log(excuseStudents);
+  }, [absentStudents, excuseStudents]);
 
   const submitAttendance = async (e) => {
     e.preventDefault();
@@ -329,6 +336,9 @@ const Attendance = () => {
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
+    console.log(active, over);
+    if (!active?.id || !over?.id) return;
+
     if (active.id === over.id) return;
 
     setHasReorder(true);
@@ -418,12 +428,7 @@ const Attendance = () => {
             {format24HourTo12Hour(obj.end_time)}{" "}
           </p>
         ))}
-        <label className="d-flex gap-2 my-3 mt-4">
-          {/* <select>
-            <option value="">Ascending</option>
-            <option value="">Descending</option>
-            <option value="">Random</option>
-          </select> */}
+        <div className="d-flex gap-2 my-3 mt-4">
           <button
             className="btn btn-warning"
             disabled={
@@ -460,7 +465,7 @@ const Attendance = () => {
               Save Order Changes
             </button>
           </div>
-        </label>
+        </div>
         <div className="attendance-list">
           <table>
             <thead>
@@ -469,25 +474,26 @@ const Attendance = () => {
                 <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Attendance</th>
+                <th></th>
               </tr>
             </thead>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCorners}
-              onDragEnd={handleDragEnd}
-            >
-              <tbody>
-                {sorting ? (
-                  <tr>
-                    <td colSpan="8">
-                      <Spinner animation="border" className="my-3" />
-                    </td>
-                  </tr>
-                ) : students.length === 0 ? (
-                  <tr>
-                    <td colSpan="8">No Student Found</td>
-                  </tr>
-                ) : (
+            <tbody>
+              {sorting ? (
+                <tr>
+                  <td colSpan="8">
+                    <Spinner animation="border" className="my-3" />
+                  </td>
+                </tr>
+              ) : students.length === 0 ? (
+                <tr>
+                  <td colSpan="8">No Student Found</td>
+                </tr>
+              ) : (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCorners}
+                  onDragEnd={handleDragEnd}
+                >
                   <SortableContext
                     items={students}
                     strategy={verticalListSortingStrategy}
@@ -499,9 +505,9 @@ const Attendance = () => {
                       }
                     />
                   </SortableContext>
-                )}
-              </tbody>
-            </DndContext>
+                </DndContext>
+              )}
+            </tbody>
           </table>
 
           {/* <Pagination>

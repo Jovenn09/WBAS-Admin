@@ -143,21 +143,23 @@ const Registration = () => {
 
   return (
     <div className="header-container">
-      <div className="university-header">
+      <div className="university-header my-4 mb-5 d-flex align-items-center">
         <img
-          src="images/PEN logo.jpg"
+          src="images/CITE.png"
           alt="University Logo"
-          className="phinma-logo"
+          className="CITE-logo m-0"
+          width={120}
+          height={120}
         />
         <img
           src="images/titles.png"
           alt="University Logo"
-          className="headert-logo"
+          className="headert-logo m-0"
         />
         <img
           src="images/phinma_logo.jpg"
           alt="University Logo"
-          className="university-logo"
+          className="university-logo m-0"
         />
       </div>
       <div className="login-container">

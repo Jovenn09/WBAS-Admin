@@ -8,6 +8,7 @@ import { supabaseAdmin } from "../../../config/supabaseClient";
 import Swal from "sweetalert2";
 import Table from "react-bootstrap/Table";
 import TeacherAccount from "../TeacherAccount/TeacherAccount";
+import AddScheduleModal from "../AssignStudents/modal/AddScheduleModal";
 
 const ListStudents = () => {
   const [filters, setFilters] = useState({
@@ -32,6 +33,13 @@ const ListStudents = () => {
   const [filterSections, setFilterSections] = useState("");
   const [filterSchoolYear, setFilterSchoolYear] = useState("2324");
   const [filterSemester, setFilterSemester] = useState("");
+
+  const [showAddScheduleModal, setShowAddScheduleModal] = useState(false);
+  const [schedule, setSchedule] = useState([]);
+  const [day, setDay] = useState("");
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [assignId, setAssignId] = useState({ subject: "", section: "" });
 
   const fetchAssignedStudents = async () => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -292,18 +300,32 @@ const ListStudents = () => {
                     {data.semester}
                   </td>
                   <td>
-                    <Button
-                      variant="danger"
-                      onClick={() =>
-                        handleDelete(
-                          data.teacher_id,
-                          data.subject_id,
-                          data.section_id
-                        )
-                      }
-                    >
-                      <FaTrash />
-                    </Button>
+                    <div className="d-flex gap-2">
+                      <Button
+                        variant="danger"
+                        onClick={() =>
+                          handleDelete(
+                            data.teacher_id,
+                            data.subject_id,
+                            data.section_id
+                          )
+                        }
+                      >
+                        <FaTrash />
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          setAssignId({
+                            subject: data.subject_id,
+                            section: data.section_id,
+                          });
+                          setShowAddScheduleModal(true);
+                        }}
+                      >
+                        Schedule
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -331,6 +353,18 @@ const ListStudents = () => {
         </Pagination>
       </div>
       <TeacherAccount />
+      <AddScheduleModal
+        show={showAddScheduleModal}
+        handleClose={() => setShowAddScheduleModal(false)}
+        setData={setSchedule}
+        day={day}
+        setDay={setDay}
+        startTime={startTime}
+        setStartTime={setStartTime}
+        endTime={endTime}
+        setEndTime={setEndTime}
+        assignId={assignId}
+      />
     </>
   );
 };

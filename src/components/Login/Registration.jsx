@@ -168,11 +168,15 @@ const Registration = () => {
         />
       </div>
       <div className="login-container">
-        <div className="card-container px-4 py-3">
-          <IoIosArrowRoundBack
-            className="back-arrow"
-            onClick={() => history.push("/login")}
-          />
+        <div className="card-container px-4 py-3 d-flex flex-column">
+          <div>
+            <IoIosArrowRoundBack
+              className="back-arrow"
+              onClick={() => history.push("/login")}
+              size={30}
+              color="#0bc452"
+            />
+          </div>
           <form onSubmit={handleSubmit} className="login-form">
             <h2>
               {" "}

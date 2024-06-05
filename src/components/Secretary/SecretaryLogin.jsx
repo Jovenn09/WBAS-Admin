@@ -95,6 +95,8 @@ const SecretaryLogin = () => {
               <IoIosArrowRoundBack
                 className="back-arrow"
                 onClick={() => history.push("/")}
+                size={30}
+                color="#0bc452"
               />
             </div>
             <div className="form-group">

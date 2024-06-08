@@ -216,11 +216,29 @@ const AssignStudents = () => {
         order: index + 1,
       }));
 
-      console.log(students);
+      const studentId = students.map((student) => student.id);
+
+      let { error: studentRecordError, count } = await supabaseAdmin
+        .from("student_record")
+        .select("*", { count: "exact" })
+        .eq("subject", subject)
+        .eq("section", section)
+        .in("id", studentId);
+
+      if (studentRecordError) return alert(studentRecordError.message);
+
+      if (count > 0) {
+        const grammar = count === 1 ? "Student" : "Students";
+        return Swal.fire(
+          "Error!",
+          `${grammar} is already been assign`,
+          "error"
+        );
+      }
 
       const { error: err } = await supabaseAdmin
         .from("student_record")
-        .upsert(students);
+        .insert(students);
 
       // const sche = schedule.map((data) => ({
       //   day: data.day,

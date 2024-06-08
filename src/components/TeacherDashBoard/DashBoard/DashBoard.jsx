@@ -5,6 +5,87 @@ import supabase, { supabaseAdmin } from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
 import { PiStudentBold } from "react-icons/pi";
 import { FaBook } from "react-icons/fa";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+import { faker } from "@faker-js/faker";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+export const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: true,
+      text: "Student Chart",
+    },
+  },
+};
+
+const labels = ["Current", "Expected"];
+
+export const data = {
+  labels,
+  datasets: [
+    {
+      label: "Dataset 1",
+      data: labels.map(() => faker.number.int({ min: 0, max: 1000 })),
+      backgroundColor: "#2195f36d",
+      borderColor: "#2196f3",
+      borderWidth: 2,
+    },
+  ],
+};
+
+const subjectOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: true,
+      text: "Number of Student in every subject",
+    },
+  },
+};
+
+const subjectLabel = ["ITE 310", "ITE 309"];
+
+const subjectsData = (subjectLabel, studentCountEachSubject) => {
+  const subject = subjectLabel.map(
+    (subject) =>
+      `${subject.subject_id} - ${subject.subjects.subject_description}`
+  );
+  return {
+    labels: subject,
+    datasets: [
+      {
+        data: studentCountEachSubject,
+        backgroundColor: "#2195f36d",
+        borderColor: "#2196f3",
+        borderWidth: 2,
+      },
+    ],
+  };
+};
 
 const Dashboard = ({ collapsed }) => {
   const { user } = useContext(AuthContext);
@@ -27,7 +108,9 @@ const Dashboard = ({ collapsed }) => {
       date: "2023-10-01",
     },
   ];
+
   const [subjects, setSubjects] = useState([]);
+  const [studentCountEachSubject, setStudentCountEachSubject] = useState([]);
   const teacherId = sessionStorage.getItem("user_id");
 
   const [totalStudents, setTotalStudents] = useState(0);
@@ -109,6 +192,18 @@ const Dashboard = ({ collapsed }) => {
     const uniqueSubject = Array.from(
       new Set(assign.map(({ subject_id }) => subject_id))
     );
+
+    const subjectCountArr = await Promise.all(
+      uniqueSubject.map(async (sub) => {
+        let { count } = await supabase
+          .from("student_record")
+          .select("*", { head: true, count: "exact" })
+          .eq("subject", sub);
+
+        return count;
+      })
+    );
+    setStudentCountEachSubject(subjectCountArr);
 
     console.log(uniqueSection);
 
@@ -231,6 +326,14 @@ const Dashboard = ({ collapsed }) => {
         >
           Mark Attendance
         </button>
+
+        <div style={{ width: "80%", margin: "auto", position: "relative" }}>
+          <Bar options={options} data={data} />
+          <Bar
+            options={subjectOptions}
+            data={subjectsData(subjects, studentCountEachSubject)}
+          />
+        </div>
       </div>
     </div>
   );

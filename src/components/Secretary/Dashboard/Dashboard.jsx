@@ -6,6 +6,54 @@ import { SiGoogleclassroom } from "react-icons/si";
 import { supabaseAdmin } from "../../../config/supabaseClient";
 import AssignStudents from "../AssignStudents/AssignStudents";
 import { useHistory } from "react-router-dom";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+import { faker } from "@faker-js/faker";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+export const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "top",
+    },
+    title: {
+      display: true,
+      text: "Student Chart",
+    },
+  },
+};
+
+const labels = ["Current", "Expected"];
+
+export const data = {
+  labels,
+  datasets: [
+    {
+      label: "Dataset 1",
+      data: labels.map(() => faker.number.int({ min: 0, max: 1000 })),
+      backgroundColor: "#2195f36d",
+      borderColor: "#2196f3",
+      borderWidth: 2,
+    },
+  ],
+};
 
 export default function Dashboard() {
   const [totalStudents, setTotalStudents] = useState(0);
@@ -139,6 +187,9 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
+        <div style={{ width: "80%", margin: "auto" }}>
+          <Bar options={options} data={data} />;
+        </div>
       </div>
     </>
   );

@@ -31,7 +31,7 @@ export const options = {
   responsive: true,
   plugins: {
     legend: {
-      position: "top",
+      display: false,
     },
     title: {
       display: true,
@@ -42,17 +42,34 @@ export const options = {
 
 const labels = ["Current", "Expected"];
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Dataset 1",
-      data: labels.map(() => faker.number.int({ min: 0, max: 1000 })),
-      backgroundColor: "#2195f36d",
-      borderColor: "#2196f3",
-      borderWidth: 2,
-    },
-  ],
+const data = (total, extra) => {
+  return {
+    labels,
+    datasets: [
+      {
+        data: [total, total + extra],
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 159, 64, 0.2)",
+          "rgba(255, 205, 86, 0.2)",
+          "rgba(75, 192, 192, 0.2)",
+          "rgba(54, 162, 235, 0.2)",
+          "rgba(153, 102, 255, 0.2)",
+          "rgba(201, 203, 207, 0.2)",
+        ],
+        borderColor: [
+          "rgb(255, 99, 132)",
+          "rgb(255, 159, 64)",
+          "rgb(255, 205, 86)",
+          "rgb(75, 192, 192)",
+          "rgb(54, 162, 235)",
+          "rgb(153, 102, 255)",
+          "rgb(201, 203, 207)",
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
 };
 
 export default function Dashboard() {
@@ -60,18 +77,24 @@ export default function Dashboard() {
   const [totalInstructors, setTotalInstructors] = useState(0);
   const [totalSubjects, setTotalSubjects] = useState(0);
   const [totalSections, setTotalSections] = useState(0);
+  const [extraStudent, setExtraStudent] = useState(0);
 
   const history = useHistory();
 
   async function getNumberOfStudents() {
     let { data: students, error } = await supabaseAdmin
+      .from("student_record")
+      .select("id");
+
+    let { count } = await supabaseAdmin
       .from("students")
-      .select("student_id");
+      .select("*", { head: true, count: "exact" });
 
     if (error) console.log(error.message);
 
+    setExtraStudent(count);
     setTotalStudents(
-      Array.from(new Set(students.map((student) => student.student_id))).length
+      Array.from(new Set(students.map((student) => student.id))).length
     );
   }
 
@@ -188,7 +211,7 @@ export default function Dashboard() {
           </div>
         </section>
         <div style={{ width: "80%", margin: "auto" }}>
-          <Bar options={options} data={data} />;
+          <Bar options={options} data={data(totalStudents, extraStudent)} />;
         </div>
       </div>
     </>

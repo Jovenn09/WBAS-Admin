@@ -14,13 +14,12 @@ import {
   useSensors,
   closestCorners,
 } from "@dnd-kit/core";
-import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { arraySwap, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { SortableContext, rectSwappingStrategy } from "@dnd-kit/sortable";
 import Spinner from "react-bootstrap/Spinner";
 import { tr } from "date-fns/locale";
+import ChairCard from "./ChairCard";
+import { PiChairFill } from "react-icons/pi";
 
 const format24HourTo12Hour = (time24) => {
   const date = parse(time24, "HH:mm:ss", new Date());
@@ -52,6 +51,7 @@ const Attendance = () => {
   const [absentStudents, setAbsentStudents] = useState([]);
   const [studentAttendance, setStudentAttendance] = useState([]);
   const [excuseStudents, setExcuseStudents] = useState([]);
+  const [numOfCol, setNumOfCol] = useState(10);
 
   const [hasReorder, setHasReorder] = useState(false);
   const [sorting, setSorting] = useState(false);
@@ -61,6 +61,7 @@ const Attendance = () => {
   const [activePage, setActivePage] = useState(1);
 
   const itemsPerPage = 10;
+  let clickTimer = null;
 
   async function getHandleClass() {
     const { data, error } = await supabase
@@ -256,20 +257,6 @@ const Attendance = () => {
       });
     }
 
-    // const attendanceRecord = studentAttendance.map((data) =>
-    //   absentStudents.includes(data.student_id)
-    //     ? { ...data, attendance_status: "absent", date: selectedDate }
-    //     : { ...data, date: selectedDate }
-    // );
-
-    // const attendanceRecord = studentAttendance
-    //   .filter((data) => absentStudents.includes(data.student_id))
-    //   .map((data) => ({
-    //     ...data,
-    //     attendance_status: "absent",
-    //     date: selectedDate,
-    //   }));
-
     const attendanceRecord = studentAttendance.map((data) => {
       const isAbsents = absentStudents.includes(data.student_id);
       const isExcuse = excuseStudents.includes(data.student_id);
@@ -346,9 +333,27 @@ const Attendance = () => {
       const originalPos = getStudentPosition(active.id);
       const newPos = getStudentPosition(over.id);
 
-      return arrayMove(tasks, originalPos, newPos);
+      return arraySwap(tasks, originalPos, newPos);
     });
   };
+
+  useEffect(() => {
+    if (!selectedClass || !selectedSection) return setNumOfCol(10);
+
+    let colNum = localStorage.getItem(
+      `column-${selectedClass}-${selectedSection}`
+    );
+
+    if (!colNum) {
+      localStorage.setItem(
+        `column-${selectedClass}-${selectedSection}`,
+        numOfCol
+      );
+      return;
+    }
+
+    setNumOfCol(colNum);
+  }, [selectedClass, selectedSection]);
 
   return (
     <div className="attendance-container">
@@ -415,7 +420,7 @@ const Attendance = () => {
           </label>
           <button
             className="show-student mx-3"
-            onClick={() => showStudents("name", true)}
+            onClick={() => showStudents("order", true)}
             disabled={!selectedClass || !selectedSection}
           >
             Show
@@ -428,6 +433,23 @@ const Attendance = () => {
             {format24HourTo12Hour(obj.end_time)}{" "}
           </p>
         ))}
+        <div>
+          <div>
+            <PiChairFill color="green" style={{ marginRight: "8px" }} />
+            <span>Present</span>
+            <span> - Single Click</span>
+          </div>
+          <div>
+            <PiChairFill color="red" style={{ marginRight: "8px" }} />
+            <span>Absent</span>
+            <span> - Double Click</span>
+          </div>
+          <div>
+            <PiChairFill color="orange" style={{ marginRight: "8px" }} />
+            <span>Excuse</span>
+            <span> - Right Click</span>
+          </div>
+        </div>
         <div className="d-flex gap-2 my-3 mt-4">
           <button
             className="btn btn-warning"
@@ -455,19 +477,67 @@ const Attendance = () => {
               }
               onClick={() => sortingHandler(true, "order")}
             >
-              Sort by My Order
+              Sort by Sitting Arrangement
             </button>
             <button
               className="btn btn-success"
               disabled={!hasReorder}
               onClick={onSaveSort}
             >
-              Save Order Changes
+              Save Sitting Arrangement
             </button>
           </div>
         </div>
-        <div className="attendance-list">
-          <table>
+
+        {students.length > 0 && (
+          <div className="d-flex gap-2">
+            <label htmlFor="grid-col">Number of Columns: </label>
+            <input
+              id="grid-col"
+              type="number"
+              defaultValue={numOfCol}
+              onChange={(e) => {
+                setNumOfCol(e.target.value);
+                localStorage.setItem(
+                  `column-${selectedClass}-${selectedSection}`,
+                  e.target.value
+                );
+              }}
+            />
+          </div>
+        )}
+
+        <div
+          className="attendance-list"
+          style={{
+            gridTemplateColumns: `repeat(${Number(numOfCol) + 1}, 1fr)`,
+          }}
+        >
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={students} strategy={rectSwappingStrategy}>
+              {students.map((student, index) => (
+                <ChairCard
+                  key={index}
+                  name={student.name}
+                  id={student.id}
+                  handleAttendanceStatusChange={handleAttendanceStatusChange}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+          <div
+            className="divider-grid"
+            style={{
+              gridRowEnd: Math.ceil(Number(students.length / numOfCol) + 1),
+              gridColumnStart: Math.ceil(Number(numOfCol) / 2) + 1,
+            }}
+          ></div>
+
+          {/* <table>
             <thead>
               <tr>
                 <th></th>
@@ -508,29 +578,7 @@ const Attendance = () => {
                 </DndContext>
               )}
             </tbody>
-          </table>
-
-          {/* <Pagination>
-            <Pagination.Prev
-              onClick={() => handlePageChange(activePage - 1)}
-              disabled={activePage === 1}
-            />
-            {[...Array(Math.ceil(totalStudents / itemsPerPage))].map(
-              (_, index) => (
-                <Pagination.Item
-                  key={index + 1}
-                  active={index + 1 === activePage}
-                  onClick={() => handlePageChange(index + 1)}
-                >
-                  {index + 1}
-                </Pagination.Item>
-              )
-            )}
-            <Pagination.Next
-              onClick={() => handlePageChange(activePage + 1)}
-              disabled={activePage === Math.ceil(totalStudents / itemsPerPage)}
-            />
-          </Pagination> */}
+          </table> */}
         </div>
 
         <div className="submit-section">

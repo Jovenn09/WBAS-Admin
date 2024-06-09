@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Pagination } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Reports.css";
 import supabase from "../../../config/supabaseClient";
 import { AuthContext } from "../../../context/AuthContext";
 import XLSX from "xlsx";
-import Table from "react-bootstrap/Table";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
 import ShowSummary from "./modal/ShowSummary";
 import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
 
 const Reports = () => {
   const { user } = useContext(AuthContext);
@@ -21,6 +18,7 @@ const Reports = () => {
   const [selectedSection, setSelectedSection] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSem, setSelectedSem] = useState("first semester");
+  const [isFetching, setIsFetching] = useState(false);
 
   const [reportData, setReportData] = useState([]);
   const [headerDate, setHeaderDate] = useState([]);
@@ -103,59 +101,67 @@ const Reports = () => {
   }, [selectedSection]);
 
   async function getAttendanceRecord() {
-    const query = supabase
-      .from("attendance")
-      .select(
-        `
+    setIsFetching(true);
+
+    try {
+      const query = supabase
+        .from("attendance")
+        .select(
+          `
       student_id,
       student_name,
       attendance_status,
       date
       `,
-        { count: "exact" }
-      )
-      .ilike("subject_id", `%${selectedClass}%`)
-      .ilike("section_id", `%${selectedSection}%`)
-      .ilike("student_name", `%${searchTerm}%`)
-      .eq("teacher_id", user.id)
-      .in("attendance_status", ["absent", "excuse"])
-      .order("date", { ascending: true });
+          { count: "exact" }
+        )
+        .ilike("subject_id", `%${selectedClass}%`)
+        .ilike("section_id", `%${selectedSection}%`)
+        .ilike("student_name", `%${searchTerm}%`)
+        .eq("teacher_id", user.id)
+        .in("attendance_status", ["absent", "excuse"])
+        .order("date", { ascending: true });
 
-    if (startDate && endDate) {
-      query.lte("date", endDate).gte("date", startDate);
+      if (startDate && endDate) {
+        query.lte("date", endDate).gte("date", startDate);
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) return console.log(error.message);
+
+      const date = Array.from(new Set(data.map((record) => record.date)));
+      setHeaderDate(date);
+
+      const students = Array.from(
+        new Set(data.map((record) => record.student_name))
+      ).sort();
+
+      const t = students.map((student) => {
+        const att = data.filter((record) => record.student_name === student);
+        const totalAbsence = att.filter(
+          (record) =>
+            record.attendance_status === "absent" ||
+            record.attendance_status === "excuse"
+        ).length;
+
+        const newObj = {
+          student_name: student,
+          totalAbsence: totalAbsence,
+          student_id: att[0].student_id,
+        };
+
+        return newObj;
+      });
+
+      console.log(t);
+      setReportData(t);
+      setRecordCount(count);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsFetching(false);
     }
-
-    const { data, error, count } = await query;
-
-    if (error) return console.log(error.message);
-
-    const date = Array.from(new Set(data.map((record) => record.date)));
-    setHeaderDate(date);
-
-    const students = Array.from(
-      new Set(data.map((record) => record.student_name))
-    ).sort();
-
-    const t = students.map((student) => {
-      const att = data.filter((record) => record.student_name === student);
-      const totalAbsence = att.filter(
-        (record) =>
-          record.attendance_status === "absent" ||
-          record.attendance_status === "excuse"
-      ).length;
-
-      const newObj = {
-        student_name: student,
-        totalAbsence: totalAbsence,
-        student_id: att[0].student_id,
-      };
-
-      return newObj;
-    });
-
-    console.log(t);
-    setReportData(t);
-    setRecordCount(count);
   }
 
   useEffect(() => {
@@ -373,6 +379,7 @@ const Reports = () => {
         </div>
       </div>
       <div className="attendance-report">
+        {isFetching && <Spinner animation="border" />}
         {reportData.length === 0 ? (
           <p>Please select subject and section</p>
         ) : (

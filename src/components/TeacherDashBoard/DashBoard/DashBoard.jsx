@@ -41,17 +41,18 @@ export const options = {
 
 const labels = ["Current", "Expected"];
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Dataset 1",
-      data: labels.map(() => faker.number.int({ min: 0, max: 1000 })),
-      backgroundColor: "#2195f36d",
-      borderColor: "#2196f3",
-      borderWidth: 2,
-    },
-  ],
+const studentData = (totalStudents, extraStudents) => {
+  return {
+    labels,
+    datasets: [
+      {
+        data: [totalStudents, totalStudents + extraStudents],
+        backgroundColor: ["#4caf507d", "#2195f36d"],
+        borderColor: ["#4caf50", "#2196f3"],
+        borderWidth: 2,
+      },
+    ],
+  };
 };
 
 const subjectOptions = {
@@ -67,8 +68,6 @@ const subjectOptions = {
   },
 };
 
-const subjectLabel = ["ITE 310", "ITE 309"];
-
 const subjectsData = (subjectLabel, studentCountEachSubject) => {
   const subject = subjectLabel.map(
     (subject) =>
@@ -79,9 +78,25 @@ const subjectsData = (subjectLabel, studentCountEachSubject) => {
     datasets: [
       {
         data: studentCountEachSubject,
-        backgroundColor: "#2195f36d",
-        borderColor: "#2196f3",
-        borderWidth: 2,
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 159, 64, 0.2)",
+          "rgba(255, 205, 86, 0.2)",
+          "rgba(75, 192, 192, 0.2)",
+          "rgba(54, 162, 235, 0.2)",
+          "rgba(153, 102, 255, 0.2)",
+          "rgba(201, 203, 207, 0.2)",
+        ],
+        borderColor: [
+          "rgb(255, 99, 132)",
+          "rgb(255, 159, 64)",
+          "rgb(255, 205, 86)",
+          "rgb(75, 192, 192)",
+          "rgb(54, 162, 235)",
+          "rgb(153, 102, 255)",
+          "rgb(201, 203, 207)",
+        ],
+        borderWidth: 1,
       },
     ],
   };
@@ -115,6 +130,7 @@ const Dashboard = ({ collapsed }) => {
 
   const [totalStudents, setTotalStudents] = useState(0);
   const [totalSubjects, setTotalSubjects] = useState(0);
+  const [extraStudents, setExtraStudents] = useState(0);
 
   console.log(user.id);
   useEffect(() => {
@@ -183,6 +199,12 @@ const Dashboard = ({ collapsed }) => {
       .select("section_id, subject_id")
       .eq("teacher_id", user.id);
 
+    let { count } = await supabase
+      .from("students")
+      .select("*", { head: true, count: "exact" });
+
+    setExtraStudents(count);
+
     if (assignError) return console.log(error.message);
 
     const uniqueSection = Array.from(
@@ -232,20 +254,10 @@ const Dashboard = ({ collapsed }) => {
         <h1 className="dashboard-title">Dashboard</h1>
       </div>
       <div className="dashboard-content">
-        <div className="subject-filter">
+        {/* <div className="subject-filter">
           <label htmlFor="subjectSelect" className="small-label">
             Select Subject:
           </label>
-          {/* <select
-            id="subjectSelect"
-            value={selectedSubject}
-            onChange={(e) => setSelectedSubject(e.target.value)}
-            className="small-select"
-          >
-            <option value="All">All</option>
-            <option value="Thesis Capstone">Thesis Capstone</option>
-            <option value="Web Development">Web Development</option>
-          </select> */}
           <select
             className="small-select"
             value={selectedSubject}
@@ -259,6 +271,15 @@ const Dashboard = ({ collapsed }) => {
             ))}
           </select>
         </div>
+
+        <p className="quick-access-text">Quick Access to Attendance Marking:</p>
+
+        <button
+          onClick={handleMarkAttendanceClick}
+          className="mark-attendance-button"
+        >
+          Mark Attendance
+        </button> */}
 
         <div className="attendance-card today-attendance-card">
           <a href="/teacher-sidebar/attendance" className="attendance-link">
@@ -276,20 +297,6 @@ const Dashboard = ({ collapsed }) => {
             </ul>
           </a>
         </div>
-        {/* <div className="attendance-card pending-attendance-card">
-          <h2 className="attendance-card-title">
-            Pending Attendance for{" "}
-            {selectedSubject === "All" ? "All Subjects" : selectedSubject}
-          </h2>
-          <ul>
-            {pendingAttendance.map((attendance, index) => (
-              <li key={index}>
-                <strong>Class:</strong> {attendance.className} (
-                {attendance.date})
-              </li>
-            ))}
-          </ul>
-        </div> */}
 
         <section className="d-flex justify-content-center gap-3 flex-wrap">
           <div
@@ -318,17 +325,15 @@ const Dashboard = ({ collapsed }) => {
           </div>
         </section>
 
-        <p className="quick-access-text">Quick Access to Attendance Marking:</p>
-
-        <button
-          onClick={handleMarkAttendanceClick}
-          className="mark-attendance-button"
-        >
-          Mark Attendance
-        </button>
-
         <div style={{ width: "80%", margin: "auto", position: "relative" }}>
-          <Bar options={options} data={data} />
+          <br />
+          <br />
+          <Bar
+            options={options}
+            data={studentData(totalStudents, extraStudents)}
+          />
+          <br />
+          <br />
           <Bar
             options={subjectOptions}
             data={subjectsData(subjects, studentCountEachSubject)}

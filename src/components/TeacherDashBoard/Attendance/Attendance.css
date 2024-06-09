@@ -87,6 +87,44 @@ select:disabled {
   cursor: not-allowed;
 }
 
+.attendance-list {
+  margin-block: 1rem;
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  width: 100%;
+  overflow: auto;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.chair-card {
+  padding-inline: 1rem;
+  width: 160px;
+  border: 1px solid black;
+  height: fit-content;
+  user-select: none; /* Prevents text selection */
+  -webkit-user-select: none; /* For Safari */
+  -moz-user-select: none; /* For Firefox */
+  -ms-user-select: none; /* For older versions of Internet Explorer */
+}
+
+.divider-grid {
+  width: 50px;
+  grid-row-start: 1;
+}
+
+.student-seat-name {
+  user-select: none; /* Prevents text selection */
+  -webkit-user-select: none; /* For Safari */
+  -moz-user-select: none; /* For Firefox */
+  -ms-user-select: none; /* For older versions of Internet Explorer */
+}
+
+.student-seat-name:hover {
+  cursor: default;
+}
+
 @media (max-width: 768px) {
   .attendance-container {
     margin-left: 100px;

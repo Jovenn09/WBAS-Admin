@@ -28,14 +28,15 @@ export default function AddScheduleModal({
   const [sched, setSched] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [room, setRoom] = useState("");
 
   const [selectedDay, setSelectedDay] = useState("");
 
   async function onAdd() {
     try {
       setIsAdding(true);
-      if (!day || !startTime || !endTime)
-        return alert("Please fill the schedule");
+      if (!day || !startTime || !endTime || !room)
+        return alert("Please fill all the input field");
 
       if (startTime > endTime) return alert("Invalid Time Range");
 
@@ -43,6 +44,7 @@ export default function AddScheduleModal({
         .from("schedule")
         .select("*")
         .eq("day", day)
+        .eq("room", room)
         .gt("end_time", startTime)
         .lt("start_time", endTime);
 
@@ -58,6 +60,7 @@ export default function AddScheduleModal({
             section: assignId.section,
             start_time: startTime,
             end_time: endTime,
+            room,
           },
         ])
         .select();
@@ -133,7 +136,7 @@ export default function AddScheduleModal({
           value={selectedDay}
           required
         />
-        <div className="d-flex gap-3 mt-4">
+        <div className="d-flex gap-3 mt-4 align-items-end">
           <fieldset>
             <label htmlFor="start-time">Start Time</label>{" "}
             <input
@@ -153,10 +156,20 @@ export default function AddScheduleModal({
               value={endTime}
             />
           </fieldset>
+          <fieldset>
+            <label htmlFor="room">Room</label>
+            <input
+              type="text"
+              onChange={(e) => setRoom(e.target.value)}
+              value={room}
+              style={{ height: "28px", width: "90px" }}
+            />
+          </fieldset>
           <Button variant="primary" onClick={onAdd} disabled={isAdding}>
             {isAdding ? <Spinner animation="border" size="sm" /> : "Add"}
           </Button>
         </div>
+        <br />
         <br />
         <div>
           {isDeleting && <Spinner animation="border" />}
@@ -165,7 +178,7 @@ export default function AddScheduleModal({
               <p className="m-1">
                 <span style={{ textTransform: "capitalize" }}>{obj.day}</span>,{" "}
                 {format24HourTo12Hour(obj.start_time)} -
-                {format24HourTo12Hour(obj.end_time)}{" "}
+                {format24HourTo12Hour(obj.end_time)} | {obj.room}
               </p>
 
               <FaRegTrashAlt

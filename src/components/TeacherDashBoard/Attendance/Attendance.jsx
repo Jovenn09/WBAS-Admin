@@ -110,6 +110,7 @@ const Attendance = () => {
   useEffect(() => {
     setSelectedSection("");
     setStudents([]);
+    setSchedule([]);
   }, [selectedClass]);
 
   useEffect(() => {
@@ -179,31 +180,6 @@ const Attendance = () => {
     setSorting(false);
     alert("Successfully save ");
   };
-
-  // async function paginateStudents() {
-  //   const start = (activePage - 1) * itemsPerPage;
-  //   const end = activePage * itemsPerPage - 1;
-
-  //   const students = await supabase
-  //     .from("students")
-  //     .select("*")
-  //     .order("name", { ascending: true })
-  //     .contains("subjects", [selectedClass])
-  //     .contains("sections", [selectedSection])
-  //     .range(start, end);
-
-  //   setStudents(students.data);
-  // }
-
-  // useEffect(() => {
-  //   if (students.length !== 0) {
-  //     paginateStudents();
-  //   }
-  // }, [activePage]);
-
-  // const handlePageChange = (pageNumber) => {
-  //   setActivePage(pageNumber);
-  // };
 
   const handleAttendanceStatusChange = (studentId, status) => {
     if (status === "Absent") {
@@ -430,7 +406,7 @@ const Attendance = () => {
           <p className="m-1" key={index}>
             <span style={{ textTransform: "capitalize" }}>{obj.day}</span>,{" "}
             {format24HourTo12Hour(obj.start_time)} -
-            {format24HourTo12Hour(obj.end_time)}{" "}
+            {format24HourTo12Hour(obj.end_time)} | {obj.room}
           </p>
         ))}
         <div>
@@ -536,49 +512,6 @@ const Attendance = () => {
               gridColumnStart: Math.ceil(Number(numOfCol) / 2) + 1,
             }}
           ></div>
-
-          {/* <table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Student ID</th>
-                <th>Student Name</th>
-                <th>Attendance</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorting ? (
-                <tr>
-                  <td colSpan="8">
-                    <Spinner animation="border" className="my-3" />
-                  </td>
-                </tr>
-              ) : students.length === 0 ? (
-                <tr>
-                  <td colSpan="8">No Student Found</td>
-                </tr>
-              ) : (
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCorners}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext
-                    items={students}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <TableRow
-                      students={students}
-                      handleAttendanceStatusChange={
-                        handleAttendanceStatusChange
-                      }
-                    />
-                  </SortableContext>
-                </DndContext>
-              )}
-            </tbody>
-          </table> */}
         </div>
 
         <div className="submit-section">

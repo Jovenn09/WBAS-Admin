@@ -27,7 +27,7 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
+const options = {
   responsive: true,
   plugins: {
     legend: {
@@ -40,7 +40,21 @@ export const options = {
   },
 };
 
+const options1 = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: true,
+      text: "Instructor, Subject, and Section Chart",
+    },
+  },
+};
+
 const labels = ["Current", "Expected"];
+const labels1 = ["Instructor", "Subject", "Section"];
 
 const data = (total, extra) => {
   return {
@@ -63,6 +77,30 @@ const data = (total, extra) => {
           "rgb(255, 205, 86)",
           "rgb(75, 192, 192)",
           "rgb(54, 162, 235)",
+          "rgb(153, 102, 255)",
+          "rgb(201, 203, 207)",
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
+};
+
+const data1 = (instructor, subject, section) => {
+  return {
+    labels: labels1,
+    datasets: [
+      {
+        data: [instructor, subject, section],
+        backgroundColor: [
+          "rgba(255, 205, 86, 0.2)",
+          "rgba(75, 192, 192, 0.2)",
+          "rgba(153, 102, 255, 0.2)",
+          "rgba(201, 203, 207, 0.2)",
+        ],
+        borderColor: [
+          "rgb(255, 205, 86)",
+          "rgb(75, 192, 192)",
           "rgb(153, 102, 255)",
           "rgb(201, 203, 207)",
         ],
@@ -212,6 +250,12 @@ export default function Dashboard() {
         </section>
         <div style={{ width: "80%", margin: "auto" }}>
           <Bar options={options} data={data(totalStudents, extraStudent)} />;
+          <br />
+          <Bar
+            options={options1}
+            data={data1(totalInstructors, totalSubjects, totalSections)}
+          />
+          ;
         </div>
       </div>
     </>

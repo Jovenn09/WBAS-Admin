@@ -7,20 +7,26 @@ const EditSectionModal = ({
   show,
   closeModal,
   sectionId,
-  fetchSectionData,
+  subjectId,
+  refetchData,
 }) => {
   const [editedSectionData, setEditedSectionData] = useState({
-    section_code: "",
+    subject_code: "",
+    subject_description: "",
+    section: "",
     year_level: "",
   });
 
   useEffect(() => {
-    if (sectionId) {
+    if (sectionId && subjectId) {
       const fetchSectionData = async () => {
         const { data, error } = await supabaseAdmin
-          .from("sections")
+          .from("section_subject")
           .select("*")
-          .eq("section_code", sectionId);
+          .eq("subject_code", subjectId)
+          .eq("section", sectionId);
+
+        console.log(data);
 
         if (error) return console.error(`Error ${error}`);
         console.log("section data: ", data);
@@ -28,7 +34,8 @@ const EditSectionModal = ({
       };
       fetchSectionData();
     }
-  }, [sectionId]);
+    console.log(sectionId, subjectId);
+  }, [sectionId, subjectId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,11 +48,32 @@ const EditSectionModal = ({
   const handleSubmit = async () => {
     const { error } = await supabaseAdmin
       .from("sections")
-      .update(editedSectionData)
+      .update({
+        section_code: editedSectionData.section,
+        year_level: editedSectionData.year_level,
+      })
       .eq("section_code", sectionId);
 
-    if (error) return console.error(`Error occur: ${error}`);
-    fetchSectionData();
+    const { error: subjectError } = await supabaseAdmin
+      .from("subjects")
+      .update({
+        subject_code: editedSectionData.subject_code,
+        subject_description: editedSectionData.subject_description,
+        year_level: editedSectionData.year_level,
+      })
+      .eq("subject_code", editedSectionData.subject_code);
+
+    const { error: sectionError } = await supabaseAdmin
+      .from("section_subject")
+      .update([editedSectionData])
+      .eq("subject_code", editedSectionData.subject_code)
+      .eq("section", editedSectionData.section);
+
+    if (error || sectionError || subjectError)
+      return console.error(`Error occur: ${error}`);
+
+    refetchData();
+
     closeModal();
     Swal.fire({
       icon: "success",
@@ -60,14 +88,34 @@ const EditSectionModal = ({
         <Modal.Title>Edit Section</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <Form.Group className="mb-3" controlId="formSubjectCode">
+          <Form.Label>Subject Code</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Subject code"
+            name="subject_code"
+            value={editedSectionData.subject_code}
+            onChange={handleChange}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="formSubjectCode">
+          <Form.Label>Subject Description</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Subject Description"
+            name="subject_description"
+            value={editedSectionData.subject_description}
+            onChange={handleChange}
+          />
+        </Form.Group>
         <Form>
           <Form.Group controlId="formSubjectCode">
             <Form.Label>Section Code</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter section code"
-              name="section_code"
-              value={editedSectionData.section_code}
+              name="section"
+              value={editedSectionData.section}
               onChange={handleChange}
             />
           </Form.Group>

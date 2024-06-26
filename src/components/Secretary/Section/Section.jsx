@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { supabaseAdmin } from "../../../config/supabaseClient";
-import { FaTrash, FaPlus, FaEdit } from "react-icons/fa";
+import { FaTrash, FaPlus } from "react-icons/fa";
 import { Pagination } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
 
 // components
 import AddNewSectionModal from "./modal/AddNewSectionModal";
 import EditSectionModal from "./modal/EditSectionModal";
-import Subject from "../Subject/Subject";
 
 export default function Section() {
   const [showSectionModal, setShowSectionModal] = useState(false);
@@ -20,11 +19,13 @@ export default function Section() {
   const [activeSectionPage, setActiveSectionPage] = useState(1);
   const itemsPerPage = 10;
 
+  const [subjectId, setSubjectId] = useState(null);
+
   async function getNumSectionData() {
     const { data, count, error } = await supabaseAdmin
-      .from("sections")
+      .from("section_subject")
       .select("*", { count: "exact", head: true })
-      .filter("section_code", "ilike", `%${sectionSearchTerm}%`);
+      .filter("subject_description", "ilike", `%${sectionSearchTerm}%`);
 
     if (error) {
       console.error("Error fetching total rows:", error.message);
@@ -39,10 +40,9 @@ export default function Section() {
     const end = activeSectionPage * itemsPerPage - 1;
 
     const { data, error } = await supabaseAdmin
-      .from("sections")
+      .from("section_subject")
       .select("*")
-      .order("timestamp", { ascending: false })
-      .ilike("section_code", `%${sectionSearchTerm}%`)
+      .ilike("subject_description", `%${sectionSearchTerm}%`)
       .range(start, end);
 
     if (error) return console.error("Error fetching sections");
@@ -50,11 +50,12 @@ export default function Section() {
     setSectionData(data);
   }
 
-  async function deleteSection(sectionId) {
+  async function deleteSection(sectionId, subjectId) {
     const { error } = await supabaseAdmin
-      .from("sections")
+      .from("section_subject")
       .delete()
-      .eq("section_code", sectionId);
+      .eq("subject_code", subjectId)
+      .eq("section", sectionId);
 
     if (error) return console.error(`Error deleting section from database`);
 
@@ -66,7 +67,7 @@ export default function Section() {
     });
   }
 
-  async function confirmDeleteSection(sectionId) {
+  async function confirmDeleteSection(sectionId, subjectId) {
     Swal.fire({
       title: "Delete Subject",
       text: "Are you sure you want to delete this section?",
@@ -76,7 +77,7 @@ export default function Section() {
       reverseButton: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteSection(sectionId);
+        deleteSection(sectionId, subjectId);
       }
     });
   }
@@ -94,8 +95,9 @@ export default function Section() {
     setShowSectionEditModal(false);
   };
 
-  const handleEditSectionClick = (sectionId) => {
+  const handleEditSectionClick = (sectionId, subjectCode) => {
     setEditSectionId(sectionId);
+    setSubjectId(subjectCode);
     setShowSectionEditModal(true);
   };
 
@@ -104,47 +106,57 @@ export default function Section() {
       <div className="admin-container">
         <div className="table-container">
           <div className="user-search-filter">
-            <h3>Section Management</h3>
+            <h3>Class Management</h3>
             <input
               type="text"
-              placeholder="Search section"
+              placeholder="Search By Subject Name"
               value={sectionSearchTerm}
               onChange={(e) => setSectionSearchTerm(e.target.value)}
             />
             <div className="new-button">
               <button onClick={handleNewSectionButtonClick}>
-                <FaPlus /> Create Section
+                <FaPlus /> Create Class
               </button>
             </div>
           </div>
           <Table responsive className="table table-bordered">
             <thead className="thead-dark">
               <tr>
-                <th>Section Code</th>
+                <th>Subject Code</th>
+                <th>Subject Description</th>
+                <th>Section</th>
                 <th>Year Level</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {sectionData.map((section) => (
-                <tr key={section.section_code}>
-                  <td>{section.section_code}</td>
+                <tr key={section.subject_code + section.section}>
+                  <td>{section.subject_code}</td>
+                  <td>{section.subject_description}</td>
+                  <td>{section.section}</td>
                   <td>{section.year_level}</td>
                   <td>
                     <div className="action-buttons">
-                      <button
+                      {/* <button
                         className="edit-button"
                         title="Edit"
                         onClick={() =>
-                          handleEditSectionClick(section.section_code)
+                          handleEditSectionClick(
+                            section.section,
+                            section.subject_code
+                          )
                         }
                       >
                         <FaEdit />
-                      </button>
+                      </button> */}
                       <button
                         className="delete-button"
                         onClick={() =>
-                          confirmDeleteSection(section.section_code)
+                          confirmDeleteSection(
+                            section.section,
+                            section.subject_code
+                          )
                         }
                         title="Delete"
                       >
@@ -193,10 +205,10 @@ export default function Section() {
           show={showSectionEditModal}
           closeModal={closeModal}
           sectionId={editSectionId}
-          fetchSectionData={fetchSectionsData}
+          subjectId={subjectId}
+          refetchData={fetchSectionsData}
         />
       </div>
-      <Subject />
     </>
   );
 }

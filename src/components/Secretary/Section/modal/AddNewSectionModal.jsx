@@ -6,14 +6,34 @@ import { supabaseAdmin } from "../../../../config/supabaseClient";
 const AddNewSectionModal = ({ show, closeModal, refetchData }) => {
   const [sectionCode, setSectionCode] = useState("");
   const [sectionYear, setSectionYear] = useState("1st Year College");
+  const [subjectCode, setSubjectCode] = useState("");
+  const [subjectDescription, setSubjectDescription] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const { error: insertError } = await supabaseAdmin
       .from("sections")
       .insert({ section_code: sectionCode, year_level: sectionYear });
 
-    if (insertError) {
+    const { error: subjectError } = await supabaseAdmin
+      .from("subjects")
+      .insert({
+        subject_code: subjectCode,
+        subject_description: subjectDescription,
+        year_level: sectionYear,
+      });
+
+    const { error: sectionError } = await supabaseAdmin
+      .from("section_subject")
+      .insert({
+        subject_code: subjectCode,
+        section: sectionCode,
+        subject_description: subjectDescription,
+        year_level: sectionYear,
+      });
+
+    if (insertError || subjectError || sectionError) {
       Swal.fire({
         icon: "error",
         title: "Error!",
@@ -39,12 +59,30 @@ const AddNewSectionModal = ({ show, closeModal, refetchData }) => {
   return (
     <Modal show={show} onHide={closeModal}>
       <Modal.Header closeButton>
-        <Modal.Title>Add New Subject</Modal.Title>
+        <Modal.Title>Add New Class</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={(e) => e.preventDefault()}>
-          <Form.Group controlId="formSubjectCode">
-            <Form.Label>Section Code</Form.Label>
+          <Form.Group className="mb-3" controlId="formSubjectCode">
+            <Form.Label>Subject Code</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter Subject code"
+              value={subjectCode}
+              onChange={(e) => setSubjectCode(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formSubjectCode">
+            <Form.Label>Subject Description</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter Subject Description"
+              value={subjectDescription}
+              onChange={(e) => setSubjectDescription(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formSubjectCode">
+            <Form.Label>Section</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter Section code"
@@ -68,7 +106,7 @@ const AddNewSectionModal = ({ show, closeModal, refetchData }) => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="primary" onClick={handleSubmit}>
-          Add Section
+          Add Class
         </Button>
         <Button variant="secondary" onClick={closeModal}>
           Close

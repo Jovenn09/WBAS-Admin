@@ -62,24 +62,8 @@ const data = (total, extra) => {
     datasets: [
       {
         data: [total, total + extra],
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(255, 159, 64, 0.2)",
-          "rgba(255, 205, 86, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(153, 102, 255, 0.2)",
-          "rgba(201, 203, 207, 0.2)",
-        ],
-        borderColor: [
-          "rgb(255, 99, 132)",
-          "rgb(255, 159, 64)",
-          "rgb(255, 205, 86)",
-          "rgb(75, 192, 192)",
-          "rgb(54, 162, 235)",
-          "rgb(153, 102, 255)",
-          "rgb(201, 203, 207)",
-        ],
+        backgroundColor: ["rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)"],
+        borderColor: ["rgb(75, 192, 192)", "rgb(54, 162, 235)"],
         borderWidth: 2,
       },
     ],
@@ -94,15 +78,13 @@ const data1 = (instructor, subject, section) => {
         data: [instructor, subject, section],
         backgroundColor: [
           "rgba(255, 205, 86, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-          "rgba(153, 102, 255, 0.2)",
-          "rgba(201, 203, 207, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(76, 175, 80, 0.2)",
         ],
         borderColor: [
           "rgb(255, 205, 86)",
-          "rgb(75, 192, 192)",
-          "rgb(153, 102, 255)",
-          "rgb(201, 203, 207)",
+          "rgb(255, 99, 132)",
+          "rgb(76, 175, 80)",
         ],
         borderWidth: 2,
       },
@@ -249,13 +231,12 @@ export default function Dashboard() {
           </div>
         </section>
         <div style={{ width: "80%", margin: "auto" }}>
-          <Bar options={options} data={data(totalStudents, extraStudent)} />;
+          <Bar options={options} data={data(totalStudents, extraStudent)} />
           <br />
           <Bar
             options={options1}
             data={data1(totalInstructors, totalSubjects, totalSections)}
           />
-          ;
         </div>
       </div>
     </>

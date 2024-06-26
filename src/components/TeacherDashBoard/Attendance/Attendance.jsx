@@ -20,6 +20,7 @@ import Spinner from "react-bootstrap/Spinner";
 import { tr } from "date-fns/locale";
 import ChairCard from "./ChairCard";
 import { PiChairFill } from "react-icons/pi";
+import { RxHeight } from "react-icons/rx";
 
 const format24HourTo12Hour = (time24) => {
   const date = parse(time24, "HH:mm:ss", new Date());
@@ -57,6 +58,8 @@ const Attendance = () => {
   const [sorting, setSorting] = useState(false);
 
   const [schedule, setSchedule] = useState([]);
+
+  const [layoutMode, setLayoutMode] = useState({ mode: "custom", column: 0 });
 
   const [activePage, setActivePage] = useState(1);
 
@@ -319,6 +322,14 @@ const Attendance = () => {
     let colNum = localStorage.getItem(
       `column-${selectedClass}-${selectedSection}`
     );
+    let arrMode = localStorage.getItem(
+      `mode-${selectedClass}-${selectedSection}`
+    );
+
+    if (arrMode) {
+      const json = JSON.parse(arrMode);
+      setLayoutMode(json);
+    }
 
     if (!colNum) {
       localStorage.setItem(
@@ -330,6 +341,13 @@ const Attendance = () => {
 
     setNumOfCol(colNum);
   }, [selectedClass, selectedSection]);
+
+  function setArrangment(mode, col) {
+    localStorage.setItem(
+      `mode-${selectedClass}-${selectedSection}`,
+      JSON.stringify({ mode, col })
+    );
+  }
 
   return (
     <div className="attendance-container">
@@ -466,27 +484,89 @@ const Attendance = () => {
         </div>
 
         {students.length > 0 && (
-          <div className="d-flex gap-2">
-            <label htmlFor="grid-col">Number of Columns: </label>
-            <input
-              id="grid-col"
-              type="number"
-              defaultValue={numOfCol}
-              onChange={(e) => {
-                setNumOfCol(e.target.value);
-                localStorage.setItem(
-                  `column-${selectedClass}-${selectedSection}`,
-                  e.target.value
-                );
-              }}
-            />
+          <div>
+            <div className="d-flex gap-2 ">
+              <label htmlFor="grid-col">Number of Columns: </label>
+              <input
+                id="grid-col"
+                type="number"
+                defaultValue={numOfCol}
+                onChange={(e) => {
+                  setNumOfCol(e.target.value);
+                  localStorage.setItem(
+                    `column-${selectedClass}-${selectedSection}`,
+                    e.target.value
+                  );
+                }}
+                disabled={layoutMode.mode !== "custom"}
+              />
+            </div>
+            <label>
+              Arrangment:
+              <select
+                style={{ height: "fit-content" }}
+                value={layoutMode.mode}
+                onChange={(e) => {
+                  const mode = e.target.value;
+                  let column = 0;
+
+                  switch (mode) {
+                    case "mac-lab":
+                      column = 12;
+                      setArrangment(mode, column);
+                      break;
+                    case "its-200":
+                      column = 14;
+                      setArrangment(mode, column);
+                      break;
+                    case "its-201":
+                      column = 14;
+                      setArrangment(mode, column);
+                      break;
+                    case "ptc-303":
+                      column = 14;
+                      setArrangment(mode, column);
+                      break;
+                    case "ptc-304":
+                      column = 10;
+                      setArrangment(mode, column);
+                      break;
+                    case "ptc-305":
+                      column = 10;
+                      break;
+                    case "ptc-306":
+                      column = 10;
+                      setArrangment(mode, column);
+                      break;
+                    default:
+                      column = 10;
+                      setArrangment(mode, column);
+                      break;
+                  }
+
+                  setLayoutMode({ mode, column });
+                }}
+              >
+                <option value="custom">Custom</option>
+                <option value="mac-lab">Mac Lab</option>
+                <option value="its-200">ITS-200</option>
+                <option value="its-201">ITS-201</option>
+                <option value="ptc-303">PTC-303</option>
+                <option value="ptc-304">PTC-304</option>
+                <option value="ptc-305">PTC-305</option>
+                <option value="ptc-306">PTC-306</option>
+              </select>
+            </label>
           </div>
         )}
 
         <div
           className="attendance-list"
           style={{
-            gridTemplateColumns: `repeat(${Number(numOfCol) + 1}, 1fr)`,
+            gridTemplateColumns:
+              layoutMode.mode === "custom"
+                ? `repeat(${Number(numOfCol) + 1}, 1fr)`
+                : `repeat(${layoutMode.column}, 1fr)`,
           }}
         >
           <DndContext
@@ -505,13 +585,82 @@ const Attendance = () => {
               ))}
             </SortableContext>
           </DndContext>
-          <div
-            className="divider-grid"
-            style={{
-              gridRowEnd: Math.ceil(Number(students.length / numOfCol) + 1),
-              gridColumnStart: Math.ceil(Number(numOfCol) / 2) + 1,
-            }}
-          ></div>
+          {layoutMode.mode === "custom" && (
+            <div
+              className="divider-grid"
+              style={{
+                gridRowEnd: Math.ceil(Number(students.length / numOfCol) + 1),
+                gridColumnStart: Math.ceil(Number(numOfCol) / 2) + 1,
+              }}
+            ></div>
+          )}
+
+          {(layoutMode.mode === "its-200" || layoutMode.mode === "ptc-303") && (
+            <>
+              <div
+                className="divider-grid"
+                style={{ gridRowEnd: 10, gridColumnStart: 5 }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{ gridRowEnd: 10, gridColumnStart: 10 }}
+              ></div>
+            </>
+          )}
+
+          {layoutMode.mode === "its-201" && (
+            <div
+              className="divider-grid"
+              style={{ gridRowEnd: 10, gridColumnStart: 5 }}
+            ></div>
+          )}
+
+          {layoutMode.mode === "mac-lab" && (
+            <div
+              className="divider-grid"
+              style={{ gridRowEnd: 10, gridColumnStart: 3, gridColumnEnd: -3 }}
+            ></div>
+          )}
+
+          {layoutMode.mode === "ptc-304" && (
+            <>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 2,
+                  gridRowEnd: 2,
+                  gridColumnStart: 1,
+                  gridColumnEnd: -1,
+                }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 5,
+                  gridRowEnd: 5,
+                  gridColumnStart: 1,
+                  gridColumnEnd: -1,
+                }}
+              ></div>
+            </>
+          )}
+
+          {(layoutMode.mode === "ptc-305" || layoutMode.mode === "ptc-306") && (
+            <>
+              <div
+                className="divider-grid"
+                style={{ gridRowEnd: 10, gridColumnStart: 2, gridColumnEnd: 2 }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{ gridRowEnd: 10, gridColumnStart: 5, gridColumnEnd: 5 }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{ gridRowEnd: 10, gridColumnStart: 8, gridColumnEnd: 8 }}
+              ></div>
+            </>
+          )}
         </div>
 
         <div className="submit-section">

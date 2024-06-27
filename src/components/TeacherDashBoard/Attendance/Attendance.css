@@ -100,8 +100,8 @@ select:disabled {
 
 .chair-card {
   padding-inline: 1rem;
-  width: 160px;
-  border: 1px solid black;
+  /* width: 160px; */
+  /* border: 1px solid black; */
   height: fit-content;
   user-select: none; /* Prevents text selection */
   -webkit-user-select: none; /* For Safari */

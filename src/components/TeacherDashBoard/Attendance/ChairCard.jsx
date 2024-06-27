@@ -25,8 +25,12 @@ export default function ChairCard({ name, id, handleAttendanceStatusChange }) {
       overlay={<Tooltip id={`tooltip-${name}`}>{name}</Tooltip>}
     >
       <div className="chair-card" ref={setNodeRef} style={style}>
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center flex-column justify-center">
           <PiChairFill
+            className="drag-icon"
+            {...attributes}
+            {...listeners}
+            size={15}
             onContextMenu={(e) => {
               e.preventDefault();
               setChairColor("orange");
@@ -57,18 +61,18 @@ export default function ChairCard({ name, id, handleAttendanceStatusChange }) {
           <span
             onDoubleClick={(e) => e.preventDefault()}
             className="m-0 student-seat-name"
-            style={{ fontSize: 14 }}
+            style={{ fontSize: 10, textAlign: "center" }}
           >
             {name.split(",")[0]}
           </span>
-          <div
+          {/* <div
             className="drag-icon"
             {...attributes}
             {...listeners}
             style={{ marginLeft: "auto" }}
           >
             <RxDragHandleHorizontal />
-          </div>
+          </div> */}
         </div>
       </div>
     </OverlayTrigger>

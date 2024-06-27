@@ -512,7 +512,7 @@ const Attendance = () => {
 
                   switch (mode) {
                     case "mac-lab":
-                      column = 12;
+                      column = 16;
                       setArrangment(mode, column);
                       break;
                     case "its-200":
@@ -616,15 +616,26 @@ const Attendance = () => {
           )}
 
           {layoutMode.mode === "mac-lab" && (
-            <div
-              className="divider-grid"
-              style={{
-                gridRowStart: 3,
-                gridRowEnd: 11,
-                gridColumnStart: 1,
-                gridColumnEnd: -2,
-              }}
-            ></div>
+            <>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 3,
+                  gridRowEnd: 12,
+                  gridColumnStart: 1,
+                  gridColumnEnd: -1,
+                }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 15,
+                  gridColumnStart: 14,
+                  gridColumnEnd: 17,
+                }}
+              ></div>
+            </>
           )}
 
           {layoutMode.mode === "ptc-304" && (

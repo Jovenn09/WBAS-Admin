@@ -516,11 +516,11 @@ const Attendance = () => {
                       setArrangment(mode, column);
                       break;
                     case "its-200":
-                      column = 14;
+                      column = 15;
                       setArrangment(mode, column);
                       break;
                     case "its-201":
-                      column = 14;
+                      column = 16;
                       setArrangment(mode, column);
                       break;
                     case "ptc-303":
@@ -599,20 +599,51 @@ const Attendance = () => {
             <>
               <div
                 className="divider-grid"
+                style={{ gridRowStart: 1, gridRowEnd: 10 }}
+              ></div>
+              <div
+                className="divider-grid"
                 style={{ gridRowEnd: 10, gridColumnStart: 5 }}
               ></div>
               <div
                 className="divider-grid"
                 style={{ gridRowEnd: 10, gridColumnStart: 10 }}
               ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 9,
+                  gridColumnStart: -1,
+                }}
+              ></div>
             </>
           )}
 
           {layoutMode.mode === "its-201" && (
-            <div
-              className="divider-grid"
-              style={{ gridRowEnd: 10, gridColumnStart: 5 }}
-            ></div>
+            <>
+              <div
+                className="divider-grid"
+                style={{ gridRowEnd: 9, gridColumnStart: 5 }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 9,
+                  gridColumnStart: 1,
+                  gridColumnEnd: 1,
+                }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 9,
+                  gridColumnStart: -1,
+                }}
+              ></div>
+            </>
           )}
 
           {layoutMode.mode === "mac-lab" && (
@@ -658,6 +689,23 @@ const Attendance = () => {
                   gridColumnEnd: -1,
                 }}
               ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 11,
+                  gridColumnStart: 1,
+                  gridColumnEnd: 1,
+                }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 11,
+                  gridColumnStart: -1,
+                }}
+              ></div>
             </>
           )}
 
@@ -665,20 +713,42 @@ const Attendance = () => {
             <>
               <div
                 className="divider-grid"
-                style={{ gridRowEnd: 10, gridColumnStart: 2, gridColumnEnd: 2 }}
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 11,
+                  gridColumnStart: 1,
+                  gridColumnEnd: 1,
+                }}
               ></div>
               <div
                 className="divider-grid"
-                style={{ gridRowEnd: 10, gridColumnStart: 5, gridColumnEnd: 5 }}
+                style={{ gridRowEnd: 11, gridColumnStart: 5, gridColumnEnd: 5 }}
               ></div>
               <div
                 className="divider-grid"
-                style={{ gridRowEnd: 10, gridColumnStart: 8, gridColumnEnd: 8 }}
+                style={{ gridRowEnd: 11, gridColumnStart: 8, gridColumnEnd: 8 }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 9,
+                  gridColumnStart: -1,
+                }}
               ></div>
             </>
           )}
           {layoutMode.mode === "ptc-306" && (
             <>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 13,
+                  gridColumnStart: 1,
+                  gridColumnEnd: 1,
+                }}
+              ></div>
               <div
                 className="divider-grid"
                 style={{
@@ -704,6 +774,14 @@ const Attendance = () => {
                   gridRowEnd: 8,
                   gridColumnStart: 1,
                   gridColumnEnd: -1,
+                }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 1,
+                  gridRowEnd: 13,
+                  gridColumnStart: -1,
                 }}
               ></div>
             </>

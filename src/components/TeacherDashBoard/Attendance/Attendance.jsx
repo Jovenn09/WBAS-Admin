@@ -535,7 +535,7 @@ const Attendance = () => {
                       column = 10;
                       break;
                     case "ptc-306":
-                      column = 10;
+                      column = 9;
                       setArrangment(mode, column);
                       break;
                     default:
@@ -618,7 +618,12 @@ const Attendance = () => {
           {layoutMode.mode === "mac-lab" && (
             <div
               className="divider-grid"
-              style={{ gridRowEnd: 10, gridColumnStart: 3, gridColumnEnd: -3 }}
+              style={{
+                gridRowStart: 3,
+                gridRowEnd: 11,
+                gridColumnStart: 1,
+                gridColumnEnd: -2,
+              }}
             ></div>
           )}
 
@@ -645,7 +650,7 @@ const Attendance = () => {
             </>
           )}
 
-          {(layoutMode.mode === "ptc-305" || layoutMode.mode === "ptc-306") && (
+          {layoutMode.mode === "ptc-305" && (
             <>
               <div
                 className="divider-grid"
@@ -658,6 +663,37 @@ const Attendance = () => {
               <div
                 className="divider-grid"
                 style={{ gridRowEnd: 10, gridColumnStart: 8, gridColumnEnd: 8 }}
+              ></div>
+            </>
+          )}
+          {layoutMode.mode === "ptc-306" && (
+            <>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 2,
+                  gridRowEnd: 2,
+                  gridColumnStart: 1,
+                  gridColumnEnd: -1,
+                }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 5,
+                  gridRowEnd: 5,
+                  gridColumnStart: 1,
+                  gridColumnEnd: -1,
+                }}
+              ></div>
+              <div
+                className="divider-grid"
+                style={{
+                  gridRowStart: 8,
+                  gridRowEnd: 8,
+                  gridColumnStart: 1,
+                  gridColumnEnd: -1,
+                }}
               ></div>
             </>
           )}
